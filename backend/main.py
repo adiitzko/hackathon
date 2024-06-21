@@ -33,13 +33,10 @@ def connect_to_mongo():
     app.mongodb_client = MongoClient(mongo_uri)
     app.database = app.mongodb_client["locationDB"]
 
-
-
 # Define MongoDB shutdown function
 def close_mongo_connection():
     if hasattr(app, "mongodb_client"):
         app.mongodb_client.close()
-
 
 # Call MongoDB connection setup function explicitly
 connect_to_mongo()
@@ -50,3 +47,7 @@ atexit.register(close_mongo_connection)
 
 # Include router for location API
 app.include_router(location_router, tags=["locations"], prefix="/api/v1/locations")
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the API"}

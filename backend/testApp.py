@@ -14,7 +14,7 @@ def setup_teardown():
     close_mongo_connection()
 
 # Sample data for testing
-sample_location_id = ObjectId()
+sample_location_id = str(ObjectId())
 sample_location_data = {
     "id": sample_location_id,
     "user_id": "user123",
@@ -23,7 +23,7 @@ sample_location_data = {
     "timestamp": "2024-06-21T12:00:00Z"
 }
 
-sample_user_id = ObjectId()
+sample_user_id = str(ObjectId())
 sample_user_data = {
     "id": sample_user_id,
     "username": "testuser",
@@ -98,4 +98,4 @@ def test_update_user():
 
 def test_delete_user():
     response = client.delete(f"/api/v1/users/{sample_user_id}")
-    assert response.status_code == 204
+    assert response.status_code == 20
