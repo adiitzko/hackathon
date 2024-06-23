@@ -6,7 +6,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class Location(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
-    user_id: str = Field(...)
+    user_21id: str = Field(...)
     latitude: float = Field(...)
     longitude: float = Field(...)
     timestamp: str = Field(...)
