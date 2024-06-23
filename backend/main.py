@@ -30,13 +30,16 @@ def connect_to_mongo():
     mongo_uri = os.getenv("MONGO_URI")
     if not mongo_uri:
         raise ValueError("No MONGO_URI set for MongoDB connection")
-    app.mongodb_client = MongoClient(mongo_uri)
+    app.mongodb_client  = MongoClient(mongo_uri)
     app.database = app.mongodb_client["locationDB"]
+
+
 
 # Define MongoDB shutdown function
 def close_mongo_connection():
     if hasattr(app, "mongodb_client"):
         app.mongodb_client.close()
+
 
 # Call MongoDB connection setup function explicitly
 connect_to_mongo()
@@ -51,3 +54,6 @@ app.include_router(location_router, tags=["locations"], prefix="/api/v1/location
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the API"}
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=443, ssl_context=("cert.pem", "key.pem"))
