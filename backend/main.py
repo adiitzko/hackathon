@@ -55,6 +55,6 @@ app.include_router(location_router, tags=["locations"], prefix="/api/v1/location
 def read_root():
     return {"message": "Welcome to the API"}
 
-if _name_ == "_main_":
-    import uvicorn 
-    uvicorn.run(app, host="0.0.0.0", port=8000)#, ssl_context=("cert.pem", "key.pem"))
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
