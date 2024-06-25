@@ -127,3 +127,16 @@ def check_user_credentials(request: Request, username: str = Body(...), password
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password"
         )
+    
+
+@router.post("/users/check-admin", response_description="Check if user is an admin")
+def check_if_admin(request: Request, username: str = Body(...), password: str = Body(...)):
+    user = request.app.database["users"].find_one({"username": username})
+    if user and pwd_context.verify(password, user["password"]):
+        is_admin = user["role"] == "admin"
+        return {"is_admin": is_admin}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password"
+        )

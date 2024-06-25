@@ -29,7 +29,7 @@ sample_user_data = {
     "username": "testuser",
     "email": "testuser@example.com",
     "password": "password123",
-    "role": "user",
+    "role": "admin",
     "phone_number": "1234567890"
 }
 
