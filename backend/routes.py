@@ -115,3 +115,15 @@ def delete_user(id: str, request: Request, response: Response):
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail=f"User with ID {id} not found")
+
+
+@router.post("/users/check", response_description="Check user credentials")
+def check_user_credentials(request: Request, username: str = Body(...), password: str = Body(...)):
+    user = request.app.database["users"].find_one({"username": username, "password": password})
+    if user is not None:
+        return {"status": "success", "user_id": user["_id"]}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password"
+        )
