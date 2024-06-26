@@ -1,10 +1,16 @@
+from multiprocessing import get_context
 from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 from models import Location, LocationUpdate, User, UserUpdate
 
 router = APIRouter()
+
 
 @router.post("/locations", response_description="Create a new location", status_code=status.HTTP_201_CREATED, response_model=Location)
 def create_location(request: Request, location: Location = Body(...)):

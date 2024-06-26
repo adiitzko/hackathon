@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from routes import router as location_router
+from routes import router
 
 # Load environment variables from .env file
 load_dotenv(".env")
@@ -49,7 +49,7 @@ import atexit
 atexit.register(close_mongo_connection)
 
 # Include router for location API
-app.include_router(location_router, tags=["locations"], prefix="/api/v1/locations")
+app.include_router(router, tags=["locations", "users"], prefix="/api/v1")
 
 @app.get("/")
 def read_root():
