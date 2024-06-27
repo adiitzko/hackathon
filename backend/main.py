@@ -7,7 +7,10 @@ from routes import router
 import atexit
 import jwt
 from datetime import datetime, timedelta
+from passlib.context import CryptContext
 
+# יצירת אובייקט ליצירה ובדיקת סיסמאות
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Load environment variables from .env file
 load_dotenv(".env")
@@ -79,7 +82,7 @@ def generate_token(username):
         'exp': expiration_time
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-    return {"token": token}
+    return token
 
 def verify_token(token):
     try:
@@ -94,8 +97,9 @@ def verify_token(token):
 @app.post("/users/login", response_description="Check user credentials")
 def check_user_credentials(request: Request, username: str = Form(...), password: str = Form(...)):
     user = request.app.database["users"].find_one({"username": username})
-    if user is not None:
+    if user is not None and pwd_context.verify(password, user["password_hash"]):
         token = generate_token(username)
+        print("Generated token:", token)  
         return {"status": "success", "user_id": str(user["_id"]), "token": token}
     else:
         raise HTTPException(
@@ -107,8 +111,8 @@ def check_user_credentials(request: Request, username: str = Form(...), password
 def read_root():
     token=generate_token("adam")
     #return {generate_token(username='adam')}
-   # return {"messege:""i am here"}
-    return {token}
+    return {"messege:""i am here"}
+    #return {token}
 
         
 
