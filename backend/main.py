@@ -77,7 +77,7 @@ def generate_token(username):
         'exp': expiration_time
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-    return token
+    return {"token": token}
 
 def verify_token(token):
     try:
