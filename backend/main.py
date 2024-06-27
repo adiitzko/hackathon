@@ -71,7 +71,9 @@ app.include_router(router, tags=["locations", "users"], prefix="/api/v1")
 
 
 def generate_token(username):
-    expiration_time = datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # תוקף של כמה שעות
+    expiration_time = datetime.utcnow() + timedelta(hours=1)
+
+    #expiration_time = datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # תוקף של כמה שעות
     payload = {
         'username': username,
         'exp': expiration_time
