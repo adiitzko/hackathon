@@ -10,11 +10,13 @@ load_dotenv(".env")
 
 app = FastAPI()
 
+api_base_url = os.getenv("SERVER_NAME")
+
 # CORS (Cross-Origin Resource Sharing) middleware
 origins = [
     "http://localhost:3000",
     "https://localhost",
-    # Add more origins as needed
+    "https://app.the-safe-zone.online"
 ]
 
 app.add_middleware(
