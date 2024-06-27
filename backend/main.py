@@ -4,7 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from routes import router
+from flask import Flask, request, jsonify
 import atexit
+import jwt
+from datetime import datetime, timedelta
 
 
 # Load environment variables from .env file
@@ -13,6 +16,7 @@ load_dotenv(".env")
 frontend_url = "https://app.the-safe-zone.online"
 
 app = FastAPI()
+app.config = {'SECRET_KEY': os.getenv("SECRET_KEY")}  
 
 api_base_url = os.getenv("SERVER_NAME")
 
@@ -67,12 +71,31 @@ atexit.register(close_mongo_connection)
 app.include_router(router, tags=["locations", "users"], prefix="/api/v1")
 
 
+def generate_token(username):
+    expiration_time = datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # תוקף של כמה שעות
+    payload = {
+        'username': username,
+        'exp': expiration_time
+    }
+    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+    return token
+
+def verify_token(token):
+    try:
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None  # תוקף הטוקן פג
+    except jwt.InvalidTokenError:
+        return None  # הטוקן אינו חוקי
+
 ## TODO need to use token to
 @app.post("/users/login", response_description="Check user credentials")
 def check_user_credentials(request: Request, username: str = Form(...), password: str = Form(...)):
     user = request.app.database["users"].find_one({"username": username})
     if user is not None:
-        return {"status": "success", "user_id": str(user["_id"])}
+        token = generate_token(username)
+        return {"status": "success", "user_id": str(user["_id"]), "token": token}
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -81,7 +104,7 @@ def check_user_credentials(request: Request, username: str = Form(...), password
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Hackaton23"}
+    return {generate_token(username='adam')}
         
 
 
