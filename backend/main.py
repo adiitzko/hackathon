@@ -9,6 +9,7 @@ import atexit
 
 # Load environment variables from .env file
 load_dotenv(".env")
+#frontend_url = "https://app.the-safe-zone.online"
 frontend_url = "https://app.the-safe-zone.online"
 
 app = FastAPI()
@@ -65,6 +66,8 @@ atexit.register(close_mongo_connection)
 # Include router for location API
 app.include_router(router, tags=["locations", "users"], prefix="/api/v1")
 
+
+## TODO need to use token to
 @app.post("/users/login", response_description="Check user credentials")
 def check_user_credentials(request: Request, username: str = Form(...), password: str = Form(...)):
     user = request.app.database["users"].find_one({"username": username})
@@ -78,7 +81,7 @@ def check_user_credentials(request: Request, username: str = Form(...), password
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Hackaton1"}
+    return {"message": "Welcome to the Hackaton23"}
         
 
 
