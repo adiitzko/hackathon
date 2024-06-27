@@ -103,8 +103,11 @@ def check_user_credentials(request: Request, username: str = Form(...), password
 
 @app.get("/")
 def read_root():
+    token=generate_token("adam")
     #return {generate_token(username='adam')}
-    return {"messege:""i am here"}
+   # return {"messege:""i am here"}
+    return {token}
+
         
 
 
