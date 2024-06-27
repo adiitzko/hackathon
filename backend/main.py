@@ -121,7 +121,7 @@ def check_user_credentials(request: Request, username: str = Form(...), password
 def read_root():
     token=generate_token("adam")
     #return {generate_token(username='adam')}
-    return {"messege:""i am here"}
+    return {"message": "Welcome to the Hackaton"}
     #return {token}
 
         
