@@ -1,12 +1,15 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI,Request
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from routes import router
+import atexit
+
 
 # Load environment variables from .env file
 load_dotenv(".env")
+frontend_url = "https://app.the-safe-zone.online"
 
 app = FastAPI()
 
@@ -21,11 +24,20 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    # allow_origins=origins, 
+    allow_origins=[frontend_url],  
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],  # השיטות שמותרות
+    allow_headers=["*"], 
 )
+
+# אפשר להוסיף middleware כדי לאפשר גישה ל-Frontend מה-Backend
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = frontend_url
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
 
 # Define MongoDB connection setup function
 def connect_to_mongo():
@@ -47,7 +59,6 @@ def close_mongo_connection():
 connect_to_mongo()
 
 # Register shutdown hook to close MongoDB connection
-import atexit
 atexit.register(close_mongo_connection)
 
 # Include router for location API
