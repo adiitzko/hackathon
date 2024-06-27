@@ -72,8 +72,18 @@ atexit.register(close_mongo_connection)
 # Include router for location API
 app.include_router(router, tags=["locations", "users"], prefix="/api/v1")
 
-
 def generate_token(username):
+    expiration_time = datetime.utcnow() + timedelta(hours=1)
+
+    payload = {
+        'username': username,
+        'exp': expiration_time
+    }
+    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+    return token
+
+
+#def generate_token(username):
     expiration_time = datetime.utcnow() + timedelta(hours=1)
 
     #expiration_time = datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # תוקף של כמה שעות
