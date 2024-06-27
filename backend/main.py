@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from routes import router
-from flask import Flask, request, jsonify
 import atexit
 import jwt
 from datetime import datetime, timedelta
