@@ -18,8 +18,8 @@ load_dotenv(".env")
 frontend_url = "https://app.the-safe-zone.online"
 
 app = FastAPI()
-app.config = {'SECRET_KEY': os.getenv("SECRET_KEY")}  
-
+#app.config = {'SECRET_KEY': os.getenv("SECRET_KEY")}  
+secret='SECRET_KEY'
 api_base_url = os.getenv("SERVER_NAME")
 
 # CORS (Cross-Origin Resource Sharing) middleware
@@ -86,7 +86,7 @@ def generate_token(username):
 
 def verify_token(token):
     try:
-        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        payload = jwt.decode(token, app.config[secret], algorithms=['HS256'])
         return payload
     except jwt.ExpiredSignatureError:
         return None  # תוקף הטוקן פג
