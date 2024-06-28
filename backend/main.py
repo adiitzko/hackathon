@@ -73,42 +73,28 @@ atexit.register(close_mongo_connection)
 # Include router for location API
 app.include_router(router, tags=["locations", "users"], prefix="/api/v1")
 
-def generate_token(username):
-    expiration_time = datetime.utcnow() + timedelta(hours=1)
 
+
+def create_jwt_token(username: str):
     payload = {
-        'username': username,
-        'exp': expiration_time
-    }
-    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+        "sub": username,
+        "exp": datetime.utcnow() + timedelta(minutes=30)
+        }
+    # Your secret key (guard it with your life!)
+    secret_key = 'supersecretkey'
+    # Algorithm for token generation
+    algorithm = 'HS256'
+    token = jwt.encode(payload, secret_key, algorithm=algorithm)
     return token
 
-
-#def generate_token(username):
-    expiration_time = datetime.utcnow() + timedelta(hours=1)
-
-    #expiration_time = datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # תוקף של כמה שעות
-    payload = {
-        'username': username,
-        'exp': expiration_time
-    }
-    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-    return token
-
-#def verify_token(token):
-    try:
-        payload = jwt.decode(token, app.config[secret], algorithms=['HS256'])
-        return payload
-    except jwt.ExpiredSignatureError:
-        return None  # תוקף הטוקן פג
-    except jwt.InvalidTokenError:
-        return None  # הטוקן אינו חוקי
 
 ## TODO need to use token to
+
 @app.post("/users/login", response_description="Check user credentials")
 def check_user_credentials(request: Request, username: str = Form(...), password: str = Form(...)):
     user = request.app.database["users"].find_one({"username": username})
     if user is not None:
+        token=create_jwt_token(username)
         #token = generate_token(username)
        # print("Generated token:", token)  
         #return {"status": "success", "user_id": str(user["_id"]), "token": token}
@@ -119,12 +105,25 @@ def check_user_credentials(request: Request, username: str = Form(...), password
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password"
         )
+    
+#@app.delete("/users/{id}", response_description="Delete a user")
+#def delete_user(id: str, request: Request, response: Response):
+    delete_result = request.app.database["users"].delete_one({"_id": id})
+
+    if delete_result.deleted_count == 1:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return response
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"User with ID {id} not found")
+
 
 @app.get("/")
 def read_root():
+    
     #token=generate_token("adam")
     #return {generate_token(username='adam')}
-    return {"message": "Welcome to the Hackaton"}
+    return {create_jwt_token("adam")}
     #return {token}
 
         
@@ -132,4 +131,5 @@ def read_root():
 
 if __name__ == "__main__":
     import uvicorn
+    print(create_jwt_token("adam"))
     uvicorn.run(app, host="0.0.0.0", port=8000)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
