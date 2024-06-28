@@ -90,7 +90,7 @@ def create_jwt_token(username: str):
 
 ## TODO need to use token to
 
-@app.post("/users/login", response_description="Check user credentials")
+@app.post("/tests-login", response_description="Check user credentials")
 def check_user_credentials(request: Request, username: str = Form(...), password: str = Form(...)):
     user = request.app.database["users"].find_one({"username": username})
     if user is not None:
@@ -98,7 +98,7 @@ def check_user_credentials(request: Request, username: str = Form(...), password
         #token = generate_token(username)
        # print("Generated token:", token)  
         #return {"status": "success", "user_id": str(user["_id"]), "token": token}
-        return {"status": "success", "user_id": str(user["_id"])}
+        return {"status": "sucsses", "user_id": str(user["_id"])}
 
     else:
         raise HTTPException(
@@ -126,7 +126,8 @@ class LoginParams(BaseModel):
 @app.post("/test-login")
 def read_root(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
-    if user is not None:
+    print(user)
+    if user is not []:
         token=create_jwt_token(user)
     print(f"{login_params.username} -- {login_params.password}")
     return {"time":datetime.now().isoformat(), "data":"my_name","status":"success","user_id":4, "userdata":f"{login_params.username} -- {login_params.password}"}
@@ -134,11 +135,11 @@ def read_root(login_params: LoginParams):
 
 
 @app.get("/")
-def read_root():
+def read_roots():
     
     #token=generate_token("adam")
     #return {generate_token(username='adam')}
-    return {create_jwt_token("adam")}
+    return {read_root("adam")}
     #return {token}
 
         
@@ -146,5 +147,6 @@ def read_root():
 
 if __name__ == "__main__":
     import uvicorn
-    print(create_jwt_token("adam"))
+    user = app.database["users"].find_one({"username":"adam"})
+    print(user)
     uvicorn.run(app, host="0.0.0.0", port=8000)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
