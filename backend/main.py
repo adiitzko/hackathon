@@ -127,7 +127,7 @@ class LoginParams(BaseModel):
 def read_root(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     print(user)
-    if user is not []:
+    if user is not None:
         token=create_jwt_token(user)
         print(f"{login_params.username} -- {login_params.password}")
         return {"time":datetime.now().isoformat(), "data":"my_name","status":"success","user_id":4, "userdata":f"{login_params.username} -- {login_params.password}"}
