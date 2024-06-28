@@ -8,7 +8,7 @@ import atexit
 import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-
+from pydantic import BaseModel
 # יצירת אובייקט ליצירה ובדיקת סיסמאות
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -116,6 +116,21 @@ def check_user_credentials(request: Request, username: str = Form(...), password
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail=f"User with ID {id} not found")
+
+
+
+class LoginParams(BaseModel):
+    username: str
+    password: str
+
+@app.post("/test-login")
+def read_root(login_params: LoginParams):
+    user = app.database["users"].find_one({"username":login_params.username})
+    if user is not None:
+        token=create_jwt_token(user)
+    print(f"{login_params.username} -- {login_params.password}")
+    return {"time":datetime.now().isoformat(), "data":"my_name","status":"success","user_id":4, "userdata":f"{login_params.username} -- {login_params.password}"}
+    #token=generate_token("adam")
 
 
 @app.get("/")
