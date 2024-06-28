@@ -129,10 +129,15 @@ def read_root(login_params: LoginParams):
     print(user)
     if user is not []:
         token=create_jwt_token(user)
-    print(f"{login_params.username} -- {login_params.password}")
-    return {"time":datetime.now().isoformat(), "data":"my_name","status":"success","user_id":4, "userdata":f"{login_params.username} -- {login_params.password}"}
+        print(f"{login_params.username} -- {login_params.password}")
+        return {"time":datetime.now().isoformat(), "data":"my_name","status":"success","user_id":4, "userdata":f"{login_params.username} -- {login_params.password}"}
     #token=generate_token("adam")
-
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password"
+        )
+    
 
 @app.get("/")
 def read_roots():
