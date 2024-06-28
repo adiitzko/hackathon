@@ -10,7 +10,8 @@ from datetime import datetime, timedelta
 from passlib.context import CryptContext
 
 # יצירת אובייקט ליצירה ובדיקת סיסמאות
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+#pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Load environment variables from .env file
 load_dotenv(".env")
@@ -19,8 +20,8 @@ frontend_url = "https://app.the-safe-zone.online"
 
 app = FastAPI()
 #app.config = {'SECRET_KEY': os.getenv("SECRET_KEY")}  
-secret='SECRET_KEY'
-api_base_url = os.getenv("SERVER_NAME")
+#secret='SECRET_KEY'
+#api_base_url = os.getenv("SERVER_NAME")
 
 # CORS (Cross-Origin Resource Sharing) middleware
 origins = [
@@ -94,7 +95,7 @@ def generate_token(username):
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
     return token
 
-def verify_token(token):
+#def verify_token(token):
     try:
         payload = jwt.decode(token, app.config[secret], algorithms=['HS256'])
         return payload
@@ -107,10 +108,12 @@ def verify_token(token):
 @app.post("/users/login", response_description="Check user credentials")
 def check_user_credentials(request: Request, username: str = Form(...), password: str = Form(...)):
     user = request.app.database["users"].find_one({"username": username})
-    if user is not None and pwd_context.verify(password, user["password_hash"]):
-        token = generate_token(username)
-        print("Generated token:", token)  
-        return {"status": "success", "user_id": str(user["_id"]), "token": token}
+    if user is not None:
+        #token = generate_token(username)
+       # print("Generated token:", token)  
+        #return {"status": "success", "user_id": str(user["_id"]), "token": token}
+        return {"status": "success", "user_id": str(user["_id"])}
+
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -119,7 +122,7 @@ def check_user_credentials(request: Request, username: str = Form(...), password
 
 @app.get("/")
 def read_root():
-    token=generate_token("adam")
+    #token=generate_token("adam")
     #return {generate_token(username='adam')}
     return {"message": "Welcome to the Hackaton"}
     #return {token}
