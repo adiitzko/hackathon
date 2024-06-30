@@ -106,14 +106,6 @@ def create_jwt_token(username: str):
                         detail=f"User with ID {id} not found")
 
 class UserCreate(BaseModel):
-    id: str
-    username: str
-    password: str
-    role: str
-    phone_number: str
-    address: str  # Adding the address field
-
-class UserCreate(BaseModel):
     _id: str
     username: str
     password: str
