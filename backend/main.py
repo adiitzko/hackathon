@@ -112,12 +112,14 @@ class UserCreate(BaseModel):
     role: str
     phone_number: str
     address: str
-    #isInDanger:False
+    isInDanger: bool = False  # Default value for isInDanger
+
+app = FastAPI()
 
 @app.post("/create-user")
 def create_user(user_create: UserCreate):
     # Check if the username or id already exists
-    existing_user = app.database["users"].find_one({"username": user_create.username})
+    existing_user = app.database["users"].find_one({"$or": [{"username": user_create.username}, {"_id": user_create._id}]})
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -132,20 +134,19 @@ def create_user(user_create: UserCreate):
         "role": user_create.role,
         "phone_number": user_create.phone_number,
         "address": user_create.address,
-        #"isInDanger":False
+        "isInDanger": user_create.isInDanger,
     }
 
     # Insert the user document into the database
     result = app.database["users"].insert_one(user_document)
 
-    if result :
-        return {"status": "success", "user_id": str(result)}
+    if result.inserted_id:
+        return {"status": "success", "user_id": str(result.inserted_id)}
     else:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create user"
         )
-    
 
 @app.get("/get-users")
 def get_user():
