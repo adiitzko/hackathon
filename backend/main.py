@@ -164,7 +164,7 @@ def create_user(user_create: UserCreate):
 def get_users():
     users_collection = app.database.users  
     users = []
-    cursor = users_collection.find({}, {"_id": 0})  # חפש את כל המשתמשים, הסר את שדה ה-_id מהתוצאה
+    cursor = users_collection.find({}, {"_id": 1})  # חפש את כל המשתמשים, הסר את שדה ה-_id מהתוצאה
     for user in cursor:
         users.append(user)
     if users!=None:
@@ -263,6 +263,7 @@ def delete_user(user: UserDelete):
             detail="User not found"
         )
     
+
 
 
 
