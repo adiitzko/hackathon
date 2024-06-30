@@ -165,7 +165,9 @@ def get_users():
     users_collection = app.database.users  
     users = []
     cursor = users_collection.find({})  
+    
     for user in cursor:
+        user["_id"] = str(user["_id"]) 
         users.append(user)
     if users!=None:
         return users
