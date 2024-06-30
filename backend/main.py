@@ -95,8 +95,6 @@ def create_jwt_token(username: str):
         "exp": datetime.utcnow() + timedelta(minutes=30)
         }
     # Your secret key (guard it with your life!)
-    
-
     # Algorithm for token generation
     algorithm = 'HS256'
     token = jwt.encode(payload, secret_key, algorithm=algorithm)
