@@ -106,7 +106,7 @@ def create_jwt_token(username: str):
                         detail=f"User with ID {id} not found")
 
 class UserCreate(BaseModel):
-    _id: str
+    #_id: str
     username: str
     password: str
     role: str
@@ -127,10 +127,10 @@ def create_user(user_create: UserCreate):
         )
 
     # Insert the user document into the database
-    result = app.database["users"].insert_many({"_id":user_create._id},{"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
+    result = app.database["users"].insert_many(,{"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
 
     if result.inserted_id:
-        return {"status": "success", "user_id": user_create._id}
+        return {"status": "success"}
     else:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
