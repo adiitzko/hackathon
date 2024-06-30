@@ -114,7 +114,7 @@ class UserCreate(BaseModel):
     address: str  # Adding the address field
 
 class UserCreate(BaseModel):
-    id: str
+    _id: str
     username: str
     password: str
     role: str
@@ -125,12 +125,12 @@ class UserCreate(BaseModel):
 @app.post("/create-user")
 def create_user(user_create: UserCreate):
     # Check if the username or id already exists
-    #existing_user = app.database["users"].find_one({"$or": [{"username": user_create.username}, {"id": user_create.id}]})
-    #if existing_user:
-    #    raise HTTPException(
-     #       status_code=status.HTTP_400_BAD_REQUEST,
-     #       detail="Username or ID already exists"
-     #   )
+    existing_user = app.database["users"].find_one({"username": user_create.username})
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username or ID already exists"
+        )
 
     # Create the user document
     user_document = {
