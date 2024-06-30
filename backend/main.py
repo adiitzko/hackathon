@@ -12,7 +12,8 @@ from pydantic import BaseModel
 import bcrypt
 from pydantic import BaseModel, EmailStr,Field
 from typing import Optional
-
+import random
+import string
 # יצירת אובייקט ליצירה ובדיקת סיסמאות
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -79,21 +80,38 @@ atexit.register(close_mongo_connection)
 app.include_router(router, tags=["locations", "users"], prefix="/api/v1")
 
 
-
+def generate_random_string(min_length=10, max_length=20):
+    # הגדרת אורך המחרוזת
+    length = random.randint(min_length, max_length)
+    
+    # יצירת המחרוזת מאותיות ותווים
+    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    
+    return random_string
+secret_key = generate_random_string()
 def create_jwt_token(username: str):
     payload = {
         "sub": username,
         "exp": datetime.utcnow() + timedelta(minutes=30)
         }
     # Your secret key (guard it with your life!)
-    secret_key = 'supersecretkey'
+    
+
     # Algorithm for token generation
     algorithm = 'HS256'
     token = jwt.encode(payload, secret_key, algorithm=algorithm)
     return token
 
 
-## TODO need to use token to
+def verify_jwt_token(token: str):
+   
+    try:
+        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+        return payload['sub']
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
 #@app.delete("/users/{id}", response_description="Delete a user")
@@ -144,7 +162,7 @@ def create_user(user_create: UserCreate):
         )
 
 @app.get("/get-users/{user_id}")
-async def get_users():
+def get_users():
     # Find a single user based on the provided user_id
     users_cursor =app.database["users"].find({})  # Exclude _id field from results if not needed
     users = list(users_cursor)
@@ -191,12 +209,13 @@ def login(login_params: LoginParams):
     print(user)
     if user is not None and password==login_params.password:
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
-     
+        token = create_jwt_token(login_params.username)
+       
         #token=create_jwt_token(user)
         if is_admin:
-          return {"status": "success_is_admin", "user_id": str(user["_id"])}
+          return {"status": "success_is_admin", "token": token,"user_id": str(user["_id"])}
         else:
-          return {"status": "success_is_not_admin", "user_id": str(user["_id"])}        
+          return {"status": "success_is_not_admin","token": token, "user_id": str(user["_id"])}        
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -250,19 +269,16 @@ def read_roots():
     #return {token}
 
         
+def get_users():
+    # Find a single user based on the provided user_id
+    users_cursor =app.database["users"].find_one({"user"})  # Exclude _id field from results if not needed
+    users = list(users_cursor)
+    return {"users": users}
 
 
 if __name__ == "__main__":
     import uvicorn
     #user = app.database["users"].find_one({"username":"adam"})
-    usern = UserCreate(
-    id="123456",
-    username="john_doe",
-    password="password123",
-    role="admin",
-    phone_number="123-456-7890",
-    address="123 Main St, City"
-)
-    create_user(usern)
-    print(usern)
+    user=get_users()
+    print(user)
     uvicorn.run(app, host="0.0.0.0", port=8000)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
