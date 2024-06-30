@@ -146,7 +146,7 @@ def create_user(user_create: UserCreate):
     # Insert the user document into the database
     result = app.database["users"].insert_one(user_document)
 
-    if result.inserted_id:
+    if result :
         return {"status": "success", "user_id": str(result.inserted_id)}
     else:
         raise HTTPException(
