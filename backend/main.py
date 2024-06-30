@@ -244,7 +244,7 @@ class UserDelete(BaseModel):
     username: str= Field(None, description="Username of the user")
     id: str = Field(None, description="ID of the user")
 
-@app.delete("/delete-user")
+@app.delete("/delete-users")
 def delete_user(user: UserDelete):
     # Build the query filter
     users_collection = app.database.users  
@@ -257,7 +257,7 @@ def delete_user(user: UserDelete):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least username, or id must be provided"
         )
-@app.delete("/delete-userד")
+@app.delete("/delete-user")
 async def delete_item(item_id: str):
     try:
         object_id = ObjectId(item_id)
