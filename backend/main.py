@@ -121,7 +121,7 @@ class UserCreate(BaseModel):
     role: str
     phone_number: str
     address: str
-    isInDanger:False
+    #isInDanger:False
 
 @app.post("/create-user")
 def create_user(user_create: UserCreate):
@@ -141,7 +141,7 @@ def create_user(user_create: UserCreate):
         "role": user_create.role,
         "phone_number": user_create.phone_number,
         "address": user_create.address,
-        "isInDanger":False
+        #"isInDanger":False
     }
 
     # Insert the user document into the database
@@ -155,7 +155,7 @@ def create_user(user_create: UserCreate):
             detail="Failed to create user"
         )
     
-    
+
 @app.get("/get-users")
 def get_user():
 
