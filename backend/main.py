@@ -162,10 +162,12 @@ def create_user(user_create: UserCreate):
     
 @app.get("/get-users", response_model=List[Dict[str, str]])
 def get_users():
-    users_collection = database.users  
-    # Find a single user based on the provided user_id
-    users = list(users_collection.find({}, {"_id": 0}))
-    return {"users": users}
+    users_collection = app.database.users  
+    users = []
+    cursor = users_collection.find({}, {"_id": 0})  # חפש את כל המשתמשים, הסר את שדה ה-_id מהתוצאה
+    for user in cursor:
+        users.append(user)
+    return users
 
 
 @app.get("/get-location")
