@@ -123,7 +123,7 @@ class UserCreate(BaseModel):
     address: str
     #isInDanger:False
 
-@app.post("/create-user")
+@app.get("/create-user")
 def create_user(user_create: UserCreate):
     # Check if the username or id already exists
     existing_user = app.database["users"].find_one({"$or": [{"username": user_create.username}, {"id": user_create.id}]})
