@@ -214,15 +214,15 @@ def hash_password(password: str) -> str:
 class LoginParams(BaseModel):
     username: str
     password: str
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
-
+# def verify_password(plain_password: str, hashed_password: str) -> bool:
+#     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 @app.post("/test-login")
 def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("role") == "admin"
     #password=user.get("password")
-    if user is not None and verify_password(login_params.password, user["password"]):
+    if user is not None and pwd_context.verify(login_params.password, user["password"]):
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
         #token = create_jwt_token(login_params.username)
        
