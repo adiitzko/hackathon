@@ -15,6 +15,7 @@ from typing import Optional
 import random
 import string
 from typing import List, Dict
+import hashlib
 # יצירת אובייקט ליצירה ובדיקת סיסמאות
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -207,9 +208,8 @@ def get_location():
 
 
 def hash_password(password: str) -> str:
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed_password.decode('utf-8')
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    return hashed_password
 
 class LoginParams(BaseModel):
     username: str
