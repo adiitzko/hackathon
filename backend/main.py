@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI,Body,Request, HTTPException,status,Form
+from fastapi import FastAPI,Body,Request,Response, HTTPException, status, HTTPException,status,Form
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -243,7 +243,7 @@ class UserDelete(BaseModel):
     username: str= Field(None, description="Username of the user")
     id: str = Field(None, description="ID of the user")
 
-@app.delete("/delete-user")
+@app.delete("/delete-users")
 def delete_user(user: UserDelete):
     # Build the query filter
     users_collection = app.database.users  
@@ -256,6 +256,16 @@ def delete_user(user: UserDelete):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least username, or id must be provided"
         )
+@app.delete("/delete-user")
+def delete_user(id: str, request: Request, response: Response):
+    delete_result = request.app.database["users"].delete_one({"_id": id})
+
+    if delete_result.deleted_count == 1:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return response
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"User with ID {id} not found")
 
     # Find and delete the user
     #app.database["users"].delete_one({"id":user.id})
