@@ -9,6 +9,9 @@ import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from pydantic import BaseModel
+import bcrypt
+from pydantic import BaseModel, EmailStr,Field
+from typing import Optional
 # יצירת אובייקט ליצירה ובדיקת סיסמאות
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -93,12 +96,17 @@ def create_jwt_token(username: str):
 @app.post("/tests-login", response_description="Check user credentials")
 def check_user_credentials(request: Request, username: str = Form(...), password: str = Form(...)):
     user = request.app.database["users"].find_one({"username": username})
+    is_admin = user.get("role") == "admin"
+    #password=user.get("password")
     if user is not None:
         token=create_jwt_token(username)
         #token = generate_token(username)
        # print("Generated token:", token)  
         #return {"status": "success", "user_id": str(user["_id"]), "token": token}
-        return {"status": "sucsses", "user_id": str(user["_id"])}
+        if is_admin:
+          return {"status": "sucsses_is_admin", "user_id": str(user["_id"])}
+        else:
+          return {"status": "sucsses_is_not_admin", "user_id": str(user["_id"])}
 
     else:
         raise HTTPException(
@@ -116,28 +124,106 @@ def check_user_credentials(request: Request, username: str = Form(...), password
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail=f"User with ID {id} not found")
+class UserCreate(BaseModel):
+    id:str
+    username: str
+    email: EmailStr
+    password: str
+    role: str
+    phone_number: Optional[str]
 
+@app.post("/create-user")
+def create_user(user: UserCreate):
+    # Check if the username, email, or id already exists
+    existing_user = app.database["users"].find_one({"$or": [{"username": user.username}, {"email": user.email}, {"id": user.id}]})
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username, email, or ID already exists"
+        )
 
+    # Hash the password
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    # Create the user document
+    user_document = {
+        "id":user.id,
+        "username": user.username,
+        "email": user.email,
+        "password": hashed_password,
+        "role": user.role,
+        "phone_number": user.phone_number,
+       
+    }
+
+    # Insert the user document into the database
+    result = app.database["users"].insert_one(user_document)
+
+    if result.inserted_id:
+        return {"status": "success", "user_id": str(result.inserted_id)}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create user"
+        )
 
 class LoginParams(BaseModel):
     username: str
     password: str
 
 @app.post("/test-login")
-def read_root(login_params: LoginParams):
+def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     print(user)
-    if user is not None:
+    if user is not None and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
+      
         token=create_jwt_token(user)
         print(f"{login_params.username} -- {login_params.password}")
         return {"time":datetime.now().isoformat(), "data":"my_name","status":"success","user_id":4, "userdata":f"{login_params.username} -- {login_params.password}"}
-    #token=generate_token("adam")
+        
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password"
         )
      
+
+
+# User deletion model
+class UserDelete(BaseModel):
+    username: str= Field(None, description="Username of the user")
+    id: str = Field(None, description="ID (Teudat Zehut) of the user")
+
+@app.delete("/delete-user")
+def delete_user(user: UserDelete):
+    # Build the query filter
+    query = {}
+    if user.username:
+        query["username"] = user.username
+    
+    if user.id:
+        query["id"] = user.teudat_zehut
+
+    # Ensure at least one field is provided
+    if not query:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one identifier (username, email, or teudat_zehut) must be provided"
+        )
+
+    # Find and delete the user
+    result = app.database["users"].delete_one(query)
+
+    if result.deleted_count == 1:
+        return {"status": "success", "message": "User deleted successfully"}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+
+
 
 @app.get("/")
 def read_roots():
