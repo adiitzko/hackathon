@@ -119,29 +119,20 @@ app = FastAPI()
 @app.post("/create-user")
 def create_user(user_create: UserCreate):
     # Check if the username or id already exists
-    existing_user = app.database["users"].find_one({"$or": [{"username": user_create.username}, {"_id": user_create._id}]})
+    existing_user = app.database["users"].find_one({"username": user_create.username})
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username or ID already exists"
         )
 
-    # Create the user document
-    user_document = {
-        "_id": user_create._id,
-        "username": user_create.username,
-        "password": user_create.password,
-        "role": user_create.role,
-        "phone_number": user_create.phone_number,
-        "address": user_create.address,
-        "isInDanger": user_create.isInDanger,
-    }
+
 
     # Insert the user document into the database
-    result = app.database["users"].insert_one(user_document)
+    result = app.database["users"].insert_one({"_id":user_create._id},{"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
 
     if result.inserted_id:
-        return {"status": "success", "user_id": user_document.get("id")}
+        return {"status": "success", "user_id": user_create._id}
     else:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
