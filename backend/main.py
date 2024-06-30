@@ -258,13 +258,13 @@ def delete_user(user: UserDelete):
             detail="At least username, or id must be provided"
         )
 @app.delete("/delete-user")
-async def delete_item(item_id: str):
+def delete_item(item_id: str):
     try:
         object_id = ObjectId(item_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid ID format")
 
-    result = await app.database.users.delete_one({"_id": object_id})
+    result =  app.database.users.delete_one({"_id": object_id})
     if result.deleted_count == 1:
         return {"msg": "Item deleted successfully"}
     else:
