@@ -141,7 +141,7 @@ def create_user(user_create: UserCreate):
     result = app.database["users"].insert_one(user_document)
 
     if result.inserted_id:
-        return {"status": "success", "user_id": str(result.inserted_id)}
+        return {"status": "success", "user_id": user_document.get("id")}
     else:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
