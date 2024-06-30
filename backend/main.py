@@ -120,6 +120,7 @@ class UserCreate(BaseModel):
 
 @app.post("/create-user")
 def create_user(user_create: UserCreate):
+    user_dict = user_create.dict()
     # Check if the username or id already exists
     existing_user = app.database["users"].find_one({"username": user_create.username})
     if existing_user:
@@ -131,7 +132,7 @@ def create_user(user_create: UserCreate):
 
     # Insert the user document into the database
     
-    app.database["users"].insert_one({"username":user_create.username},{"password":user_create.password})
+    app.database["users"].insert_one(user_dict)
     
     result=app.database["users"].find_one({"username":user_create.username})
     if result:
