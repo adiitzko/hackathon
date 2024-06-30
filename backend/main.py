@@ -259,13 +259,13 @@ def delete_user(user: UserDelete):
     # Find and delete the user
     result = app.database["users"].delete_one(usertodelete)
 
-    if result.deleted_count == 1:
-        return {"status": "success", "message": "User deleted successfully"}
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
+    #if result.deleted_count == 1:
+    return {"status": "success", "message": "User deleted successfully"}
+    # else:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_404_NOT_FOUND,
+    #         detail="User not found"
+    #     )
     
 
 
