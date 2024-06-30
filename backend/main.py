@@ -161,9 +161,9 @@ def create_user(user_create: UserCreate):
 
 @app.post("/get-users/{user_id}")
 def get_users():
+    users_collection = database.users  
     # Find a single user based on the provided user_id
-    users_cursor =app.database["users"].find({})  # Exclude _id field from results if not needed
-    users = list(users_cursor)
+    users = list(users_collection.find({}, {"_id": 0}))
     return {"users": users}
 
 
