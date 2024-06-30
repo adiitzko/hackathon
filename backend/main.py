@@ -12,15 +12,17 @@ from pydantic import BaseModel
 import bcrypt
 from pydantic import BaseModel, EmailStr,Field
 from typing import Optional
+
 # יצירת אובייקט ליצירה ובדיקת סיסמאות
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+MONGO_URI=MongoClient("mongodb+srv://adiitzko:adiitz2004@cluster0.is6jut3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 
 # Load environment variables from .env file
 load_dotenv(".env")
 #frontend_url = "https://app.the-safe-zone.online"
 frontend_url = "https://app.the-safe-zone.online"
-
+database = MONGO_URI.locationDB
 app = FastAPI()
 #app.config = {'SECRET_KEY': os.getenv("SECRET_KEY")}  
 #secret='SECRET_KEY'
@@ -112,7 +114,7 @@ class UserCreate(BaseModel):
     role: str
     phone_number: str
     address: str
-    isInDanger: bool = False  # Default value for isInDanger
+    #isInDanger: bool = False  # Default value for isInDanger
 
 
 
@@ -126,10 +128,19 @@ def create_user(user_create: UserCreate):
             detail="Username or ID already exists"
         )
 
-    # Insert the user document into the database
-    result = app.database["users"].insert_one({"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
 
-    if result.inserted_id:
+    # Insert the user document into the database
+    app.database.insert_one({
+        "username": user_create.username,
+        "password": user_create.password,
+        "role": user_create.role,
+        "phone_number": user_create.phone_number,
+        "address": user_create.address,
+        "isInDanger": user_create.isInDanger
+    })
+    app.database["users"].insert_one({"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
+    result=app.database["users"].find_one({"username":user_create.username})
+    if result:
         return {"status": "success"}
     else:
         raise HTTPException(
