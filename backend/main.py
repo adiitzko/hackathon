@@ -14,6 +14,7 @@ from pydantic import BaseModel, EmailStr,Field
 from typing import Optional
 import random
 import string
+from typing import List, Dict
 # יצירת אובייקט ליצירה ובדיקת סיסמאות
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -158,8 +159,8 @@ def create_user(user_create: UserCreate):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create user"
         )
-
-@app.get("/get-users/{user_id}")
+    
+@app.get("/get-users", response_model=List[Dict[str, str]])
 def get_users():
     users_collection = database.users  
     # Find a single user based on the provided user_id
