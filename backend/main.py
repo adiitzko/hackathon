@@ -247,14 +247,14 @@ class UserDelete(BaseModel):
 @app.delete("/delete-user")
 def delete_user(user: UserDelete):
     # Build the query filter
-    usertodelete=app.database["users"].find_one({"id":UserDelete.id})
+    #usertodelete=app.database["users"].find_one({"id":UserDelete.id})
    
     # Ensure at least one field is provided
-    if not usertodelete:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="At least username, or id must be provided"
-        )
+    # if not usertodelete:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail="At least username, or id must be provided"
+    #     )
 
     # Find and delete the user
     result = app.database["users"].delete_one({"id":UserDelete.id})
