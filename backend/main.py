@@ -159,7 +159,7 @@ def create_user(user_create: UserCreate):
             detail="Failed to create user"
         )
 
-@app.get("/get-users/{user_id}")
+@app.post("/get-users/{user_id}")
 def get_users():
     # Find a single user based on the provided user_id
     users_cursor =app.database["users"].find({})  # Exclude _id field from results if not needed
@@ -267,12 +267,6 @@ def read_roots():
     #return {token}
 
         
-def get_users():
-    # Find a single user based on the provided user_id
-    users_cursor =app.database["users"].find_one({"user"})  # Exclude _id field from results if not needed
-    users = list(users_cursor)
-    return {"users": users}
-
 
 if __name__ == "__main__":
     import uvicorn
