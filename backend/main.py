@@ -16,6 +16,7 @@ import random
 import string
 from typing import List, Dict
 import hashlib
+from bson import ObjectId
 # יצירת אובייקט ליצירה ובדיקת סיסמאות
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -257,26 +258,17 @@ def delete_user(user: UserDelete):
             detail="At least username, or id must be provided"
         )
 @app.delete("/delete-user")
-def delete_user(id: str, request: Request, response: Response):
-    delete_result = request.app.database["users"].delete_one({"_id": id})
+async def delete_item(item_id: str):
+    try:
+        object_id = ObjectId(item_id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid ID format")
 
-    if delete_result.deleted_count == 1:
-        response.status_code = status.HTTP_204_NO_CONTENT
-        return response
-
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"User with ID {id} not found")
-
-    # Find and delete the user
-    #app.database["users"].delete_one({"id":user.id})
-    #deleted=app.database["users"].find_one({"id":user.id})
-    if not result:
-        return {"status": "success", "message": "User deleted successfully"}
+    result = await app.database.users.delete_one({"_id": object_id})
+    if result.deleted_count == 1:
+        return {"msg": "Item deleted successfully"}
     else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
+        raise HTTPException(status_code=404, detail="Item not found")
     
 
 
