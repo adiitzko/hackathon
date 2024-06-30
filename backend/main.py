@@ -140,7 +140,7 @@ class UserCreate(BaseModel):
 def create_user(user_create: UserCreate):
     user_dict = user_create.dict()
     # Check if the username or id already exists
-    hashed_password = hash_password(user_create.password)
+    #hashed_password = hash_password(user_create.password)
     existing_user = app.database["users"].find_one({"id": user_create.id})
     if existing_user:
         raise HTTPException(
@@ -221,8 +221,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("role") == "admin"
-    #password=user.get("password")
-    if user is not None and pwd_context.verify(login_params.password, user["password"]):
+    password=user.get("password")
+    if user is not None and password==login_params.password:
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
         #token = create_jwt_token(login_params.username)
        
