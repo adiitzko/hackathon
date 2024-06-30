@@ -108,13 +108,13 @@ def create_jwt_token(username: str):
                         detail=f"User with ID {id} not found")
 
 class UserCreate(BaseModel):
-    #_id: str
+    id: str
     username: str
     password: str
     role: str
     phone_number: str
     address: str
-    #isInDanger: bool = False  # Default value for isInDanger
+    isInDanger: bool = False  # Default value for isInDanger
 
 
 
@@ -122,7 +122,7 @@ class UserCreate(BaseModel):
 def create_user(user_create: UserCreate):
     user_dict = user_create.dict()
     # Check if the username or id already exists
-    existing_user = app.database["users"].find_one({"username": user_create.username})
+    existing_user = app.database["users"].find_one({"id": user_create.id})
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -134,7 +134,7 @@ def create_user(user_create: UserCreate):
     
     app.database["users"].insert_one(user_dict)
     
-    result=app.database["users"].find_one({"username":user_create.username})
+    result=app.database["users"].find_one({"id": user_create.id})
     if result:
         return {"status": "success"}
     else:
@@ -143,12 +143,15 @@ def create_user(user_create: UserCreate):
             detail="Failed to create user"
         )
 
-@app.get("/get-users")
-def get_user():
-
-    users = list(app.database["users"].find({}, {"_id": 0, "_id": 1}))
-    return {"users": users}
-
+@app.get("/get-users/{user_id}")
+async def get_user(user_id: str):
+    # Find a single user based on the provided user_id
+    result = database.users.find_one({"id": user_id})
+    
+    if result:
+        return {"user": result}
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
 
 @app.get("/get-location")
 def get_location():
@@ -193,9 +196,9 @@ def login(login_params: LoginParams):
      
         #token=create_jwt_token(user)
         if is_admin:
-          return {"status": "success_is_admin", "user_id": str(user["_id"])}
+          return {"status": "success_is_admin", "user_id": str(user["id"])}
         else:
-          return {"status": "success_is_not_admin", "user_id": str(user["_id"])}        
+          return {"status": "success_is_not_admin", "user_id": str(user["id"])}        
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -207,7 +210,7 @@ def login(login_params: LoginParams):
 # User deletion model
 class UserDelete(BaseModel):
     username: str= Field(None, description="Username of the user")
-    id: str = Field(None, description="ID (Teudat Zehut) of the user")
+    id: str = Field(None, description="ID of the user")
 
 @app.delete("/delete-user")
 def delete_user(user: UserDelete):
@@ -217,7 +220,7 @@ def delete_user(user: UserDelete):
         query["username"] = user.username
     
     if user.id:
-        query["id"] = user.teudat_zehut
+        query["id"] = user.id
 
     # Ensure at least one field is provided
     if not query:
