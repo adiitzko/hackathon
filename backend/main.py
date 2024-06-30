@@ -113,13 +113,13 @@ class UserCreate(BaseModel):
     phone_number: Optional[str]
 
 @app.post("/create-user")
-def create_user(user: UserCreate):
+def create_user(username: str, address: str, password: str, role: str, phone_number: Optional[str] = None):
     # Check if the username, email, or id already exists
-    existing_user = app.database["users"].find_one({"$or": [{"username": user.username}, {"email": user.email}, {"id": user.id}]})
+    existing_user = app.database["users"].find_one({"$or": [{"username": username}, {"address": address}]})
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username, email, or ID already exists"
+            detail="Username, address, or ID already exists"
         )
 
     # Hash the password
@@ -129,7 +129,7 @@ def create_user(user: UserCreate):
     user_document = {
         "id":user.id,
         "username": user.username,
-        "email": user.email,
+        "adress": user.address,
         "password": hashed_password,
         "role": user.role,
         "phone_number": user.phone_number,
@@ -146,6 +146,13 @@ def create_user(user: UserCreate):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create user"
         )
+
+@app.get("/get-users")
+def get_user():
+    # בצע שאילתה למסד הנתונים כדי לקבל את כל המשתמשים עם השדה של התעודת זהות בלבד
+    users = list(app.database["users"].find({}, {"_id": 0, "id": 1}))
+    return {"users": users}
+
 
 class LoginParams(BaseModel):
     username: str
@@ -192,7 +199,7 @@ def delete_user(user: UserDelete):
     if not query:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="At least one identifier (username, email, or teudat_zehut) must be provided"
+            detail="At least one identifier (username, address, or teudat_zehut) must be provided"
         )
 
     # Find and delete the user
