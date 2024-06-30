@@ -167,7 +167,13 @@ def get_users():
     cursor = users_collection.find({}, {"_id": 0})  # חפש את כל המשתמשים, הסר את שדה ה-_id מהתוצאה
     for user in cursor:
         users.append(user)
-    return users
+    if users!=[]:
+        return users
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
 
 
 @app.get("/get-location")
