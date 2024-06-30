@@ -113,25 +113,35 @@ class UserCreate(BaseModel):
     phone_number: str
     address: str  # Adding the address field
 
+class UserCreate(BaseModel):
+    id: str
+    username: str
+    email: str
+    password: str
+    role: str
+    phone_number: str
+    address: str
+    isInDanger:False
+
 @app.post("/create-user")
-def create_user():
-    data=Request.get_json()
-    # Check if the username, email, or id already exists
-    existing_user = app.database["users"].find_one({"$or": [{"username":data.get("username")},{"id": data.get("id")}]})
+def create_user(user_create: UserCreate):
+    # Check if the username or id already exists
+    existing_user = app.database["users"].find_one({"$or": [{"username": user_create.username}, {"id": user_create.id}]})
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username, email, or ID already exists"
+            detail="Username or ID already exists"
         )
 
     # Create the user document
     user_document = {
-        "_id": data.get("id"),
-        "username": data.get("username"),
-        "password": data.get("password"),
-        "role": data.get("role"),
-        "phone_number": data.get("phone_number"),
-        "address": data.get("address"),  # Include the address field
+        "_id": user_create.id,
+        "username": user_create.username,
+        "password": user_create.password,
+        "role": user_create.role,
+        "phone_number": user_create.phone_number,
+        "address": user_create.address,
+        "isInDanger":False
     }
 
     # Insert the user document into the database
@@ -144,7 +154,8 @@ def create_user():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create user"
         )
-
+    
+    
 @app.get("/get-users")
 def get_user():
 
