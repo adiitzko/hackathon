@@ -247,7 +247,7 @@ class UserDelete(BaseModel):
 @app.delete("/delete-user")
 async def delete_user(user: UserDelete):
     # Build the query filter
-    usertodelete=app.database["users"].find_one({"id":UserDelete.id})
+    usertodelete= database["users"].find_one({"id":UserDelete.id})
     print(usertodelete)
     result = await database["users"].delete_one({"_id": UserDelete.id})
     # Ensure at least one field is provided
