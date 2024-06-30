@@ -166,8 +166,7 @@ def create_user(user_create: UserCreate):
 def get_users():
     users_collection = app.database.users  
     users = []
-    cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  # שלב את השדה _id במקום id
-
+    cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  
     for user in cursor:
         users.append(user)
     if users!=None:
@@ -245,11 +244,12 @@ class UserDelete(BaseModel):
     id: str = Field(None, description="ID of the user")
 
 @app.delete("/delete-user")
-async def delete_user(user: UserDelete):
+def delete_user(user: UserDelete):
     # Build the query filter
-    usertodelete= app.database["users"].find_one({"id":user.id})
+    users_collection = app.database.users  
+    usertodelete= users_collection.find_one({"id":user.id})
     print(usertodelete)
-    result = await app.database["users"].delete_one({"_id": user.id})
+    result =  users_collection .delete_one({"_id": user.id})
     # Ensure at least one field is provided
     if not usertodelete:
         raise HTTPException(
