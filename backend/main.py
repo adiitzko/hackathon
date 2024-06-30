@@ -155,8 +155,9 @@ class LoginParams(BaseModel):
 def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("role") == "admin"
+    password=user.get("password")
     print(user)
-    if user is not None:
+    if user is not None and password==login_params.password:
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
      
         #token=create_jwt_token(user)
