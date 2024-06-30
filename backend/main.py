@@ -139,6 +139,7 @@ class UserCreate(BaseModel):
 def create_user(user_create: UserCreate):
     user_dict = user_create.dict()
     # Check if the username or id already exists
+    hashed_password = hash_password(user_create.password)
     existing_user = app.database["users"].find_one({"id": user_create.id})
     if existing_user:
         raise HTTPException(
@@ -205,16 +206,23 @@ def get_location():
     return {"locations": locations}
 
 
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password.decode('utf-8')
+
 class LoginParams(BaseModel):
     username: str
     password: str
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 @app.post("/test-login")
 def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("role") == "admin"
-    password=user.get("password")
-    if user is not None and password==login_params.password:
+    #password=user.get("password")
+    if user is not None and verify_password(login_params.password, user["password"]):
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
         #token = create_jwt_token(login_params.username)
        
