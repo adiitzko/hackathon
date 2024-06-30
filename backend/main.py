@@ -134,7 +134,7 @@ def create_user(user_create: UserCreate):
 
     # Create the user document
     user_document = {
-        "_id": user_create.id,
+        "_id": user_create._id,
         "username": user_create.username,
         "password": user_create.password,
         "role": user_create.role,
