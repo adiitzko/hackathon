@@ -116,22 +116,21 @@ class UserCreate(BaseModel):
 class UserCreate(BaseModel):
     id: str
     username: str
-    email: str
     password: str
     role: str
     phone_number: str
     address: str
     #isInDanger:False
 
-@app.get("/create-user")
+@app.post("/create-user")
 def create_user(user_create: UserCreate):
     # Check if the username or id already exists
-    existing_user = app.database["users"].find_one({"$or": [{"username": user_create.username}, {"id": user_create.id}]})
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username or ID already exists"
-        )
+    #existing_user = app.database["users"].find_one({"$or": [{"username": user_create.username}, {"id": user_create.id}]})
+    #if existing_user:
+    #    raise HTTPException(
+     #       status_code=status.HTTP_400_BAD_REQUEST,
+     #       detail="Username or ID already exists"
+     #   )
 
     # Create the user document
     user_document = {
@@ -266,7 +265,15 @@ def read_roots():
 
 if __name__ == "__main__":
     import uvicorn
-    user = app.database["users"].find_one({"username":"adam"})
-    create_user()
-    print(user)
+    #user = app.database["users"].find_one({"username":"adam"})
+    usern = UserCreate(
+    id="123456",
+    username="john_doe",
+    password="password123",
+    role="admin",
+    phone_number="123-456-7890",
+    address="123 Main St, City"
+)
+    create_user(usern)
+    print(usern)
     uvicorn.run(app, host="0.0.0.0", port=8000)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
