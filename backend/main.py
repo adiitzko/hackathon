@@ -93,27 +93,7 @@ def create_jwt_token(username: str):
 
 ## TODO need to use token to
 
-@app.post("/tests-login", response_description="Check user credentials")
-def check_user_credentials(request: Request, username: str = Form(...), password: str = Form(...)):
-    user = request.app.database["users"].find_one({"username": username})
-    is_admin = user.get("role") == "admin"
-    #password=user.get("password")
-    if user is not None:
-        token=create_jwt_token(username)
-        #token = generate_token(username)
-       # print("Generated token:", token)  
-        #return {"status": "success", "user_id": str(user["_id"]), "token": token}
-        if is_admin:
-          return {"status": "sucsses_is_admin", "user_id": str(user["_id"])}
-        else:
-          return {"status": "sucsses_is_not_admin", "user_id": str(user["_id"])}
 
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
-        )
-    
 #@app.delete("/users/{id}", response_description="Delete a user")
 #def delete_user(id: str, request: Request, response: Response):
     delete_result = request.app.database["users"].delete_one({"_id": id})
@@ -176,7 +156,7 @@ def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("role") == "admin"
     print(user)
-    if user is not None 
+    if user is not None:
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
      
         #token=create_jwt_token(user)
