@@ -146,7 +146,7 @@ def create_user(user_create: UserCreate):
 @app.get("/get-users/{user_id}")
 async def get_users():
     # Find a single user based on the provided user_id
-    users_cursor =app.database["users"].find({}, {"_id": 0})  # Exclude _id field from results if not needed
+    users_cursor =app.database["users"].find({})  # Exclude _id field from results if not needed
     users = list(users_cursor)
     return {"users": users}
 
