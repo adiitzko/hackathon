@@ -136,9 +136,9 @@ def create_user(user_create: UserCreate):
         "role": user_create.role,
         "phone_number": user_create.phone_number,
         "address": user_create.address,
-        "isInDanger": user_create.isInDanger
+        #"isInDanger": user_create.isInDanger
     })
-    app.database["users"].insert_one({"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
+    app.database["users"].insert_one({"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address})
     result=app.database["users"].find_one({"username":user_create.username})
     if result:
         return {"status": "success"}
