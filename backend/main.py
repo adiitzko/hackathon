@@ -127,7 +127,7 @@ def create_user(user_create: UserCreate):
         )
 
     # Insert the user document into the database
-    result = app.database["users"].insert_many({"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
+    result = app.database["users"].insert_one({"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
 
     if result.inserted_id:
         return {"status": "success"}
