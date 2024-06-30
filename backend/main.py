@@ -144,14 +144,12 @@ def create_user(user_create: UserCreate):
         )
 
 @app.get("/get-users/{user_id}")
-async def get_user(user_id: str):
+async def get_users(user_id: str):
     # Find a single user based on the provided user_id
-    result = database.users.find_one({"id": user_id})
-    
-    if result:
-        return {"user": result}
-    else:
-        raise HTTPException(status_code=404, detail="User not found")
+    users_cursor =app.database["users"].find({}, {"_id": 0})  # Exclude _id field from results if not needed
+    users = list(users_cursor)
+    return {"users": users}
+
 
 @app.get("/get-location")
 def get_location():
