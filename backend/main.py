@@ -167,7 +167,7 @@ def get_users():
     cursor = users_collection.find({}, {"_id": 0})  # חפש את כל המשתמשים, הסר את שדה ה-_id מהתוצאה
     for user in cursor:
         users.append(user)
-    if users!=[]:
+    if users!=None:
         return users
     else:
         raise HTTPException(
