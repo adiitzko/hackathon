@@ -114,7 +114,7 @@ class UserCreate(BaseModel):
     address: str
     isInDanger: bool = False  # Default value for isInDanger
 
-app = FastAPI()
+
 
 @app.post("/create-user")
 def create_user(user_create: UserCreate):
@@ -126,10 +126,8 @@ def create_user(user_create: UserCreate):
             detail="Username or ID already exists"
         )
 
-
-
     # Insert the user document into the database
-    result = app.database["users"].insert_one({"_id":user_create._id},{"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
+    result = app.database["users"].insert_many({"_id":user_create._id},{"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address},{"isInDanger": user_create.isInDanger})
 
     if result.inserted_id:
         return {"status": "success", "user_id": user_create._id}
