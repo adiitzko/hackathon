@@ -196,9 +196,9 @@ def login(login_params: LoginParams):
      
         #token=create_jwt_token(user)
         if is_admin:
-          return {"status": "success_is_admin", "user_id": str(user["id"])}
+          return {"status": "success_is_admin", "user_id": str(user["_id"])}
         else:
-          return {"status": "success_is_not_admin", "user_id": str(user["id"])}        
+          return {"status": "success_is_not_admin", "user_id": str(user["_id"])}        
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
