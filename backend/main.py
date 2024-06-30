@@ -249,7 +249,7 @@ async def delete_user(user: UserDelete):
     # Build the query filter
     usertodelete= database["users"].find_one({"id":user.id})
     print(usertodelete)
-    #result = await database["users"].delete_one({"_id": user.id})
+    result = await database["users"].delete_one({"_id": user.id})
     # Ensure at least one field is provided
     if not usertodelete:
         raise HTTPException(
@@ -258,9 +258,9 @@ async def delete_user(user: UserDelete):
         )
 
     # Find and delete the user
-    app.database["users"].delete_one({"id":user.id})
-    deleted=app.database["users"].find_one({"id":user.id})
-    if not deleted:
+    #app.database["users"].delete_one({"id":user.id})
+    #deleted=app.database["users"].find_one({"id":user.id})
+    if not result:
         return {"status": "success", "message": "User deleted successfully"}
     else:
         raise HTTPException(
