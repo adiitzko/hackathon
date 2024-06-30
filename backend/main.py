@@ -174,12 +174,18 @@ class LoginParams(BaseModel):
 @app.post("/test-login")
 def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
+    is_admin = user.get("role") == "admin"
     print(user)
     if user is not None and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
       
         token=create_jwt_token(user)
         print(f"{login_params.username} -- {login_params.password}")
-        return {"time":datetime.now().isoformat(), "data":"my_name","status":"success","user_id":4, "userdata":f"{login_params.username} -- {login_params.password}"}
+        if is_admin:
+          return {"status": "success_is_admin", "user_id": str(user["_id"])}
+        else:
+          return {"status": "success_is_not_admin", "user_id": str(user["_id"])}
+
+    
         
     else:
         raise HTTPException(
@@ -239,5 +245,6 @@ def read_roots():
 if __name__ == "__main__":
     import uvicorn
     user = app.database["users"].find_one({"username":"adam"})
+    create_user()
     print(user)
     uvicorn.run(app, host="0.0.0.0", port=8000)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
