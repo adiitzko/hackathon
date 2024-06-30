@@ -104,36 +104,33 @@ def create_jwt_token(username: str):
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail=f"User with ID {id} not found")
+
 class UserCreate(BaseModel):
-    id:str
+    id: str
     username: str
-    email: EmailStr
     password: str
     role: str
-    phone_number: Optional[str]
+    phone_number: str
+    address: str  # Adding the address field
 
 @app.post("/create-user")
-def create_user(username: str, address: str, password: str, role: str, phone_number: Optional[str] = None):
+def create_user(user_create: UserCreate):
     # Check if the username, email, or id already exists
-    existing_user = app.database["users"].find_one({"$or": [{"username": username}, {"address": address}]})
+    existing_user = app.database["users"].find_one({"$or": [{"username": user_create.username},{"id": user_create.id}]})
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username, address, or ID already exists"
+            detail="Username, email, or ID already exists"
         )
-
-    # Hash the password
-    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     # Create the user document
     user_document = {
-        "id":user.id,
-        "username": user.username,
-        "adress": user.address,
-        "password": hashed_password,
-        "role": user.role,
-        "phone_number": user.phone_number,
-       
+        "_id": user_create.id,
+        "username": user_create.username,
+        "password": user_create.password,
+        "role": user_create.role,
+        "phone_number": user_create.phone_number,
+        "address": user_create.address,  # Include the address field
     }
 
     # Insert the user document into the database
@@ -149,9 +146,37 @@ def create_user(username: str, address: str, password: str, role: str, phone_num
 
 @app.get("/get-users")
 def get_user():
-    # בצע שאילתה למסד הנתונים כדי לקבל את כל המשתמשים עם השדה של התעודת זהות בלבד
+
     users = list(app.database["users"].find({}, {"_id": 0, "id": 1}))
     return {"users": users}
+
+
+@app.get("/get-location")
+def get_location():
+    # Aggregate to fetch locations with user names
+    locations = list(app.database["locations"].aggregate([
+        {
+            "$lookup": {
+                "from": "users",
+                "localField": "user_id",
+                "foreignField": "id",
+                "as": "user_info"
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "location_id": "$_id",
+                "user_id": 1,
+                "username": {"$arrayElemAt": ["$user_info.username", 0]},
+                "latitude": 1,
+                "longitude": 1,
+                "timestamp": 1
+            }
+        }
+    ]))
+    
+    return {"locations": locations}
 
 
 class LoginParams(BaseModel):
@@ -199,7 +224,7 @@ def delete_user(user: UserDelete):
     if not query:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="At least one identifier (username, address, or teudat_zehut) must be provided"
+            detail="At least username, or id must be provided"
         )
 
     # Find and delete the user
