@@ -139,7 +139,7 @@ def create_user(user_create: UserCreate):
     result = app.database["users"].insert_one(user_document)
 
     if result :
-        return {"status": "success", "user_id": str(result.inserted_id)}
+        return {"status": "success", "user_id": str(result)}
     else:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -150,7 +150,7 @@ def create_user(user_create: UserCreate):
 @app.get("/get-users")
 def get_user():
 
-    users = list(app.database["users"].find({}, {"_id": 0, "id": 1}))
+    users = list(app.database["users"].find({}, {"_id": 0, "_id": 1}))
     return {"users": users}
 
 
@@ -162,7 +162,7 @@ def get_location():
             "$lookup": {
                 "from": "users",
                 "localField": "user_id",
-                "foreignField": "id",
+                "foreignField": "_id",
                 "as": "user_info"
             }
         },
