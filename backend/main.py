@@ -137,14 +137,14 @@ def read_root(login_params: LoginParams):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password"
         )
-    
+     
 
 @app.get("/")
 def read_roots():
     
     #token=generate_token("adam")
     #return {generate_token(username='adam')}
-    return {read_root("adam")}
+    return {"message":"hi"}
     #return {token}
 
         
