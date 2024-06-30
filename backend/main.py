@@ -159,7 +159,7 @@ def create_user(user_create: UserCreate):
             detail="Failed to create user"
         )
 
-@app.post("/get-users/{user_id}")
+@app.get("/get-users/{user_id}")
 def get_users():
     users_collection = database.users  
     # Find a single user based on the provided user_id
