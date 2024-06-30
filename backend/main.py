@@ -178,7 +178,7 @@ def login(login_params: LoginParams):
     print(user)
     if user is not None :
       #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8'))
-        token=create_jwt_token(user)
+        #token=create_jwt_token(user)
         if is_admin:
           return {"status": "success_is_admin", "user_id": str(user["_id"])}
         else:
