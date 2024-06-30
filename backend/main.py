@@ -131,7 +131,7 @@ def create_user(user_create: UserCreate):
 
     # Insert the user document into the database
     
-    app.database["users"].insert_one({"username":user_create.username},{"password":user_create.password},{"role":user_create.role},{ "phone_number": user_create.phone_number},{"address": user_create.address})
+    app.database["users"].insert_one({"username":user_create.username},{"password":user_create.password})
     
     result=app.database["users"].find_one({"username":user_create.username})
     if result:
