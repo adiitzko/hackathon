@@ -164,7 +164,7 @@ def create_user(user_create: UserCreate):
 def get_users():
     users_collection = app.database.users  
     users = []
-    cursor = users_collection.find({},{"_id":0,"id":1,"username":1})  
+    cursor = users_collection.find({},{"_id":0,"id":1,"username":1,"password":1})  
     for user in cursor:
         users.append(user)
     if users!=None:
