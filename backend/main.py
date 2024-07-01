@@ -358,7 +358,7 @@ def read_messages():
             message["_id"] = str(message["_id"]) 
         
         if messages:
-            print(message)
+            print(messages)
             return messages
         else:
             raise HTTPException(
