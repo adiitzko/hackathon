@@ -222,6 +222,7 @@ def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("role") == "admin"
     password=user.get("password")
+    print(hash_password(password))
     if user is not None and password==login_params.password:
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
         #token = create_jwt_token(login_params.username)
@@ -260,19 +261,21 @@ def delete_user(user: UserDelete):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least username, or id must be provided"
         )
-@app.delete("/delete-userד")
-def delete_item(item_id: str):
-    try:
-        object_id = ObjectId(item_id)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid ID format")
+class Message(BaseModel):
+    send: str = Field(...)
+    content: str = Field(...)
+    time: datetime = Field(default_factory=datetime.utcnow)
 
-    result =  app.database.users.delete_one({"_id": object_id})
-    if result.deleted_count == 1:
-        return {"msg": "Item deleted successfully"}
-    else:
-        raise HTTPException(status_code=404, detail="Item not found")
-    
+@app.post("/messages/")
+def create_message(messages: Message):
+    message_dict = messages.dict()
+    app.database["messages"].insert_one(message_dict)
+    return {"message": "Message created successfully"}
+
+@app.get("/messages/")
+def read_messages():
+    messages = list( app.database["messages"].find())
+    return messages
 
 
 
