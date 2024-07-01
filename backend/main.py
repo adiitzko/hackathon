@@ -213,9 +213,9 @@ def hash_password(password: str) -> str:
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     return hashed_password
 
-def verify_password(stored_password: str, provided_password: str) -> bool:
-    hashed_provided_password = hashlib.sha256(provided_password.encode()).hexdigest()
-    return hashed_provided_password == stored_password
+# def verify_password(stored_password: str, provided_password: str) -> bool:
+#     hashed_provided_password = hashlib.sha256(provided_password.encode()).hexdigest()
+#     return hashed_provided_password == stored_password
 
 class LoginParams(BaseModel):
     username: str
@@ -228,7 +228,7 @@ def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("role") == "admin"
     password=user.get("password")
-    print(hash_password(password))
+   # print(hash_password(password))
     
     if user is not None and password==login_params.password:
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
