@@ -355,6 +355,7 @@ def read_messages():
         
         for message in messages:
             message["_id"] = str(message["_id"]) 
+            message["time"] = message["time"].strftime("%Y-%m-%d %H:%M:%S")
         
         if messages:
             return messages
