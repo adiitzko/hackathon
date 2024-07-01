@@ -17,7 +17,32 @@ import string
 from typing import List, Dict
 import hashlib
 from bson import ObjectId
-import models
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+class UserCreate(BaseModel):
+    id: str
+    username: str
+    password: str
+    role: str
+    phone_number: str
+    address: str
+    isInDanger: bool = False  # Default value for isInDanger
+    isAdmin:bool=False
+
+class Message(BaseModel):
+    send: str = Field(...)
+    content: str = Field(...)
+    time: datetime = Field(default_factory=datetime.utcnow)
+
+class UserDelete(BaseModel):
+    username: str= Field(None, description="Username of the user")
+    id: str = Field(None, description="ID of the user")
+    
+class LoginParams(BaseModel):
+    username: str
+    password: str
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 MONGO_URI=MongoClient("mongodb+srv://adiitzko:adiitz2004@cluster0.is6jut3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
@@ -110,7 +135,7 @@ def verify_jwt_token(token: str):
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 @app.post("/test-login")
-def login(login_params: models.LoginParams):
+def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("isAdmin")
     password=user.get("password")
@@ -133,7 +158,7 @@ def login(login_params: models.LoginParams):
 
 
 @app.post("/create-user")
-def create_user(user_create: models.UserCreate):
+def create_user(user_create: UserCreate):
     hashed_passwords = hash_password(user_create.password)
     user_create.password=hashed_passwords
     user_dict = user_create.dict()
@@ -185,7 +210,7 @@ def hash_password(password: str) -> str:
 
 
 @app.delete("/delete-user")
-def delete_user(user: models.UserDelete):
+def delete_user(user: UserDelete):
     # Build the query filter
     users_collection = app.database["users"]  
     usertodelete= users_collection.find_one({"id":user.id})
@@ -242,7 +267,7 @@ def get_location():
 
 
 @app.post("/create_message/")
-def create_message(messages: models.Message):
+def create_message(messages: Message):
     try:
         message_dict = messages.dict()
         app.database["messages"].insert_one(message_dict)
