@@ -353,11 +353,12 @@ def create_message(messages: Message):
     try:
 
         
-        encrypted_messaged = encrypt_message(messages.content, key)
-        print(encrypted_messaged)
-        message_dict = messages.dict()
+        encrypted_messaged = encrypt_message(messages["content"], key)
         print(encrypted_messaged)
         message_dict["message"] = encrypted_messaged
+        message_dict = messages.dict()
+        print(encrypted_messaged)
+       
         
 
         app.database["messages"].insert_one(message_dict)
