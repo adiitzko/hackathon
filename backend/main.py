@@ -225,11 +225,11 @@ def login(login_params: LoginParams):
 
 @app.post("/create-user")
 def create_user(user_create: UserCreate):
-    #hashed_passwords = hash_password(user_create.password)
-    #user_create.password=hashed_passwords
+    hashed_passwords = hash_password(user_create.password)
+    user_create.password=hashed_passwords
     user_dict = user_create.dict()
     # Check if the username or id already exists
-    #hashed_password = hash_password(user_create.password)
+    hashed_password = hash_password(user_create.password)
     existing_user = app.database["users"].find_one({"id": user_create.id})
     if existing_user:
         raise HTTPException(
