@@ -19,6 +19,10 @@ import hashlib
 from bson import ObjectId
 from fastapi import APIRouter
 from uuid import uuid4
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
+import os
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -58,7 +62,7 @@ app = FastAPI()
 users_collection = database.users  
 locations_collection = database.locations
 #app.config = {'SECRET_KEY': os.getenv("SECRET_KEY")}  
-#secret='SECRET_KEY'
+
 #api_base_url = os.getenv("SERVER_NAME")
 
 # CORS (Cross-Origin Resource Sharing) middleware
@@ -67,6 +71,30 @@ origins = [
     "https://localhost",
     "https://app.the-safe-zone.online"
 ]
+
+def generate_random_string(min_length=10, max_length=20):
+    # הגדרת אורך המחרוזת
+    length = random.randint(min_length, max_length)
+    
+    # יצירת המחרוזת מאותיות ותווים
+    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    
+    return random_string
+secret_key = generate_random_string()
+
+
+def create_jwt_token(username: str):
+    payload = {
+        "sub": username,
+        "exp": datetime.utcnow() + timedelta(minutes=30)
+        }
+    # Your secret key (guard it with your life!)
+    # Algorithm for token generation
+    algorithm = 'HS256'
+    token = jwt.encode(payload, secret_key, algorithm=algorithm)
+    return token
+
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -103,7 +131,42 @@ atexit.register(close_mongo_connection)
 router = APIRouter()
 # Include router for location API
 app.include_router(router, tags=["locations", "users","messages"], prefix="/api/v1")
+secret_key = generate_random_string()
+def encrypt_message(message, key):
+    # יצירת וקטור אתחול (IV) באורך 16 בתים
+    iv = os.urandom(16)
+    
+    # יצירת cipher להצפנה עם מפתח ה-AES ומצב ה-CBC
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    
+    # הוספת padding להודעה כדי להתאים לגודל הבלוק של AES
+    padder = padding.PKCS7(algorithms.AES.block_size).padder()
+    padded_data = padder.update(message.encode()) + padder.finalize()
+    
+    # הצפנת ההודעה
+    encrypted_message = encryptor.update(padded_data) + encryptor.finalize()
+    
+    # החזרת וקטור האתחול (IV) משולב עם ההודעה המוצפנת
+    return iv + encrypted_message
 
+def decrypt_message(encrypted_message, key):
+    # הפרדת וקטור האתחול (IV) מההודעה המוצפנת
+    iv = encrypted_message[:16]
+    encrypted_message = encrypted_message[16:]
+    
+    # יצירת cipher לפענוח עם מפתח ה-AES ומצב ה-CBC
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    decryptor = cipher.decryptor()
+    
+    # פענוח ההודעה המוצפנת
+    padded_data = decryptor.update(encrypted_message) + decryptor.finalize()
+    
+    # הסרת padding מההודעה המפוענחת
+    unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
+    message = unpadder.update(padded_data) + unpadder.finalize()
+    
+    return message.decode()
 
 def generate_random_string(min_length=10, max_length=20):
     # הגדרת אורך המחרוזת
@@ -113,7 +176,7 @@ def generate_random_string(min_length=10, max_length=20):
     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
     
     return random_string
-secret_key = generate_random_string()
+
 def create_jwt_token(username: str):
     payload = {
         "sub": username,
@@ -275,7 +338,8 @@ async def add_location(location: Location):
 def create_message(messages: Message):
     try:
         message_dict = messages.dict()
-        app.database["messages"].insert_one(message_dict)
+        mess=encrypt_message(message_dict,secret_key)
+        app.database["messages"].insert_one(mess)
         return {"message": "Message created successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
@@ -291,7 +355,8 @@ def read_messages():
             message["time"] = message["time"].strftime("%Y-%m-%d %H:%M:%S")
         
         if messages:
-            return messages
+            mess=decrypt_message(message,secret_key)
+            return mess
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
