@@ -250,6 +250,7 @@ def get_users():
     for user in cursor:
            users.append(user)
     if users!=None:
+        print(users)
         return users
     else:
         raise HTTPException(
