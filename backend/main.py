@@ -317,30 +317,63 @@ class Location(BaseModel):
     timestamp: datetime= datetime.now()
     isInDanger: bool = False  # Default value for isInDanger
 
-@app.post("/add_location/")
-def add_location(location: Location):
-    user = users_collection.find_one({"username": location.username})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+# @app.post("/add_location/")
+# def add_location(location: Location):
+#     user = users_collection.find_one({"username": location.username})
+#     if not user:
+#         raise HTTPException(status_code=404, detail="User not found")
     
-    if locations_collection.find_one({"username": location.username}):
-        users_collection.delete_one({"username": location.username})
+#     if locations_collection.find_one({"username": location.username}):
+#         users_collection.delete_one({"username": location.username})
 
-    location_id = str(uuid4())
+#     location_id = str(uuid4())
     
-    location_data = {
-        "_id": location_id,
-        "username": location.username,
-        "latitude": location.latitude,
-        "longitude": location.longitude,
-        "timestamp": location.timestamp.isoformat()
-        }
-    locations_collection.insert_one(location_data)
-    return {"message": "Location added successfully", "location_id": location_id}
+#     location_data = {
+#         "_id": location_id,
+#         "username": location.username,
+#         "latitude": location.latitude,
+#         "longitude": location.longitude,
+#         "timestamp": location.timestamp.isoformat()
+#         }
+#     locations_collection.insert_one(location_data)
+#     return {"message": "Location added successfully", "location_id": location_id}
         
     
    
   
+@app.post("/add_location/")
+def add_location(location: Location):
+    user = users_collection.find_one({"username": location.username})
+    if not user:
+        # אם המשתמש לא קיים, ליצור משתמש חדש ולהוסיף אותו למאגר הנתונים
+        user_id = str(uuid4())
+        users_collection.insert_one({
+            "_id": user_id,
+            "username": location.username,
+            "other_user_fields": "values"  # שדות נוספים אם יש לך
+        })
+        user = {"_id": user_id, "username": location.username}
+
+    # מחיקת המיקום הקודם של המשתמש אם קיים
+    locations_collection.delete_many({"username": location.username})
+
+    # יצירת מזהה ייחודי חדש למיקום
+    location_id = str(uuid4())
+    
+    # הכנת הנתונים להוספה למאגר הנתונים
+    location_data = {
+        "_id": location_id,
+        "user_id": user["_id"],
+        "username": location.username,
+        "latitude": location.latitude,
+        "longitude": location.longitude,
+        "timestamp": location.timestamp.isoformat()
+    }
+    
+    # הוספת המיקום החדש למאגר הנתונים
+    locations_collection.insert_one(location_data)
+    
+    return {"message": "Location added successfully", "location_id": location_id}
     
     
 
