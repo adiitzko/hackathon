@@ -229,7 +229,8 @@ def login(login_params: LoginParams):
     is_admin = user.get("role") == "admin"
     password=user.get("password")
     print(hash_password(password))
-    if user is not None and verify_password(user["password"], login_params.password):
+    
+    if user is not None and password==login_params.password:
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
         #token = create_jwt_token(login_params.username)
        
