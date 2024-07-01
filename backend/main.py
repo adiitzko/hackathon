@@ -352,7 +352,7 @@ key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
 @app.post("/create_message/")
 def create_message(messages: Message):
     try:
-        print(encrypt_message(messages.content))
+        print(encrypt_message(key,messages.content))
         #print(encrypt_message_jwt(m,key))
         
         #encrypted_messaged = encrypt_message(messages.content, key)
