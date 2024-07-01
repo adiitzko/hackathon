@@ -132,41 +132,41 @@ router = APIRouter()
 # Include router for location API
 app.include_router(router, tags=["locations", "users","messages"], prefix="/api/v1")
 secret_key = generate_random_string()
-def encrypt_message(message, key):
-    # יצירת וקטור אתחול (IV) באורך 16 בתים
-    iv = os.urandom(16)
+# def encrypt_message(message, key):
+#     # יצירת וקטור אתחול (IV) באורך 16 בתים
+#     iv = os.urandom(16)
     
-    # יצירת cipher להצפנה עם מפתח ה-AES ומצב ה-CBC
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    encryptor = cipher.encryptor()
+#     # יצירת cipher להצפנה עם מפתח ה-AES ומצב ה-CBC
+#     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+#     encryptor = cipher.encryptor()
     
-    # הוספת padding להודעה כדי להתאים לגודל הבלוק של AES
-    padder = padding.PKCS7(algorithms.AES.block_size).padder()
-    padded_data = padder.update(message.encode()) + padder.finalize()
+#     # הוספת padding להודעה כדי להתאים לגודל הבלוק של AES
+#     padder = padding.PKCS7(algorithms.AES.block_size).padder()
+#     padded_data = padder.update(message.encode()) + padder.finalize()
     
-    # הצפנת ההודעה
-    encrypted_message = encryptor.update(padded_data) + encryptor.finalize()
+#     # הצפנת ההודעה
+#     encrypted_message = encryptor.update(padded_data) + encryptor.finalize()
     
-    # החזרת וקטור האתחול (IV) משולב עם ההודעה המוצפנת
-    return iv + encrypted_message
+#     # החזרת וקטור האתחול (IV) משולב עם ההודעה המוצפנת
+#     return iv + encrypted_message
 
-def decrypt_message(encrypted_message, key):
-    # הפרדת וקטור האתחול (IV) מההודעה המוצפנת
-    iv = encrypted_message[:16]
-    encrypted_message = encrypted_message[16:]
+# def decrypt_message(encrypted_message, key):
+#     # הפרדת וקטור האתחול (IV) מההודעה המוצפנת
+#     iv = encrypted_message[:16]
+#     encrypted_message = encrypted_message[16:]
     
-    # יצירת cipher לפענוח עם מפתח ה-AES ומצב ה-CBC
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    decryptor = cipher.decryptor()
+#     # יצירת cipher לפענוח עם מפתח ה-AES ומצב ה-CBC
+#     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+#     decryptor = cipher.decryptor()
     
-    # פענוח ההודעה המוצפנת
-    padded_data = decryptor.update(encrypted_message) + decryptor.finalize()
+#     # פענוח ההודעה המוצפנת
+#     padded_data = decryptor.update(encrypted_message) + decryptor.finalize()
     
-    # הסרת padding מההודעה המפוענחת
-    unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
-    message = unpadder.update(padded_data) + unpadder.finalize()
+#     # הסרת padding מההודעה המפוענחת
+#     unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
+#     message = unpadder.update(padded_data) + unpadder.finalize()
     
-    return message.decode()
+#     return message.decode()
 
 def generate_random_string(min_length=10, max_length=20):
     # הגדרת אורך המחרוזת
