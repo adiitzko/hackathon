@@ -34,7 +34,6 @@ class UserCreate(BaseModel):
     role: str
     phone_number: str
     address: str
-    isInDanger: bool = False  # Default value for isInDanger
     isAdmin:bool=False
 
 class Message(BaseModel):
@@ -296,9 +295,9 @@ def delete_user(user: UserDelete):
 @app.get("/get-locations")
 def get_locations():
     locationss = []
-    cursor =locations_collection.find({}, {"_id": 0, "user_id":1,"username": 1, "latitude": 1, "longitude": 1})  
+    cursor =locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1})  
     for location in cursor:
-           if users_collection.find_one({"id":location.id}):
+           if users_collection.find_one({"username":location.username}):
               locationss.append(location)
     if locationss!=None:
         return locationss
@@ -313,7 +312,8 @@ class Location(BaseModel):
     username: str
     latitude: float
     longitude: float
-    timestamp: datetime
+    timestamp: datetime= datetime.now()
+    isInDanger: bool = False  # Default value for isInDanger
 
 @app.post("/add_location/")
 async def add_location(location: Location):
@@ -325,10 +325,11 @@ async def add_location(location: Location):
     
     location_data = {
         "_id": location_id,
-        "user_id": user["id"],
+        "username": location.username,
         "latitude": location.latitude,
         "longitude": location.longitude,
         "timestamp": location.timestamp.isoformat()
+        
     }
     locations_collection.insert_one(location_data)
     return {"message": "Location added successfully", "location_id": location_id}
@@ -351,12 +352,13 @@ def create_message(messages: Message):
 def read_messages():
     try:
         messages_collection = app.database.messages  
-        messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}))
+        messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
         
         for message in messages:
             message["_id"] = str(message["_id"]) 
         
         if messages:
+            print(message)
             return messages
         else:
             raise HTTPException(
@@ -365,40 +367,42 @@ def read_messages():
             )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
-# @app.post("/create_message/")
-# def create_message(messages: Message):
-#     try:
-#         message_dict = messages.dict()
-#        # mess=encrypt_message(message_dict,secret_key)
-#         app.database["messages"].insert_one(message_dict)
-#         return {"message": "Message created successfully"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-# @app.get("/read_messages/")
-# def read_messages():
-#     try:
-#         messages_collection = app.database.messages  
-#         messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
+@app.put("/isdanger/")
+def set_isdanger(user_id: str):
+    try:
+        users_collection = app.database.users
+        result = users_collection.update_one({"id": ObjectId(user_id)}, {"$set": {"isInDanger": True}})
         
-#         for message in messages:
-#             message["_id"] = str(message["_id"]) 
-#             message["time"] = message["time"].strftime("%Y-%m-%d %H:%M:%S")
+        if result.modified_count == 1:
+            return {"message": "User's isdanger field updated to true"}
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+
+@app.get("/dangerous_users/", response_model=List[UserCreate])
+async def get_dangerous_users():
+    try:
+        # שליפת כל המשתמשים עם is_danger=True
+        users = users_collection.find({"isInDanger": True})
         
-#         if messages:
-#             # mess=decrypt_message(message,secret_key)
-#             # return mess
-#             return message
-            
-#         else:
-#             raise HTTPException(
-#                 status_code=status.HTTP_404_NOT_FOUND,
-#                 detail="No messages found"
-#             )
-#     except Exception as e:
-#         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
-
-
+        # יצירת רשימת משתמשים במבנה המודל User
+        dangerous_users = []
+        for user in users:
+            dangerous_users.append(Location(
+                username=user["username"],
+                latitude=user["lstitude"],
+                longitude=user["longitude"]
+                
+            ))
+        
+        return dangerous_users
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
 def read_roots():
