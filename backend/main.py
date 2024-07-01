@@ -371,7 +371,7 @@ def read_messages():
 
         for message in messages:
             message["_id"] = str(message["_id"]) 
-            print(decrypt_message(message,key))
+            #print(decrypt_message(message,key))
            
         if messages:
             return messages
