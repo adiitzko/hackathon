@@ -347,7 +347,8 @@ def create_message(messages: Message):
     try:
         encrypted_messaged = encrypt_message(messages.content, secret_key)
         message_dict = messages.dict()
-        message_dict["message"] = encrypted_messaged
+        print(encrypt_message)
+        #message_dict["message"] = encrypted_messaged
         
 
         app.database["messages"].insert_one(message_dict)
