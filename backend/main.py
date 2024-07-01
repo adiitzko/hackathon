@@ -351,7 +351,7 @@ def create_message(messages: Message):
         print(encrypted_messaged)
         message_dict = messages.dict()
         print(encrypted_messaged)
-        #message_dict["message"] = encrypted_messaged
+        message_dict["message"] = encrypted_messaged
         
 
         app.database["messages"].insert_one(message_dict)
