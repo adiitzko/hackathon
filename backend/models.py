@@ -1,47 +1,30 @@
 import uuid
 from pydantic import BaseModel, Field
 from passlib.context import CryptContext
+from datetime import datetime, timedelta
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-class Location(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
-    user_21id: str = Field(...)
-    latitude: float = Field(...)
-    longitude: float = Field(...)
-    timestamp: str = Field(...)
+class UserCreate(BaseModel):
+    id: str
+    username: str
+    password: str
+    role: str
+    phone_number: str
+    address: str
+    isInDanger: bool = False  # Default value for isInDanger
+    isAdmin:bool=False
 
-class LocationUpdate(BaseModel):
-    latitude: float = Field(...)
-    longitude: float = Field(...)
-    timestamp: str = Field(...)
+class Message(BaseModel):
+    send: str = Field(...)
+    content: str = Field(...)
+    time: datetime = Field(default_factory=datetime.utcnow)
 
-class User(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
-    username: str = Field(...)
-    email: str = Field(...)
-    password: str = Field(...)
-    role: str = Field(...)
-    phone_number: str = Field(...)
-
-    # def hash_password(self):
-    #     self.password = pwd_context.hash(self.password)
-
-class UserUpdate(BaseModel):
-    username: str = Field(None)
-    email: str = Field(None)
-    password: str = Field(None)
-    role: str = Field(None)
-    phone_number: str = Field(None)
-
-# # בשימוש בעת יצירת משתמש
-# new_user = User(
-#     username="example_user",
-#     email="user@example.com",
-#     password="password123",
-#     role="user",
-#     phone_number="123456789"
-# )
-
-# new_user.hash_password()
-# print(new_user.password)  # ידפיס את הסיסמה המוצפנת
+class UserDelete(BaseModel):
+    username: str= Field(None, description="Username of the user")
+    id: str = Field(None, description="ID of the user")
+    
+class LoginParams(BaseModel):
+    username: str
+    password: str
