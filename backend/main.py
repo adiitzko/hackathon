@@ -139,6 +139,8 @@ class UserCreate(BaseModel):
 
 @app.post("/create-user")
 def create_user(user_create: UserCreate):
+    hashed_passwords = hash_password(user_create.password)
+    user_create.password=hashed_passwords
     user_dict = user_create.dict()
     # Check if the username or id already exists
     #hashed_password = hash_password(user_create.password)
@@ -211,6 +213,10 @@ def hash_password(password: str) -> str:
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     return hashed_password
 
+def verify_password(stored_password: str, provided_password: str) -> bool:
+    hashed_provided_password = hashlib.sha256(provided_password.encode()).hexdigest()
+    return hashed_provided_password == stored_password
+
 class LoginParams(BaseModel):
     username: str
     password: str
@@ -223,7 +229,7 @@ def login(login_params: LoginParams):
     is_admin = user.get("role") == "admin"
     password=user.get("password")
     print(hash_password(password))
-    if user is not None and password==login_params.password:
+    if user is not None and verify_password(user["password"], login_params.password):
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
         #token = create_jwt_token(login_params.username)
        
