@@ -134,7 +134,7 @@ class UserCreate(BaseModel):
     phone_number: str
     address: str
     isInDanger: bool = False  # Default value for isInDanger
-    isAdmin:str="false"
+    isAdmin:bool=False
 
 
 
