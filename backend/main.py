@@ -139,8 +139,8 @@ class UserCreate(BaseModel):
 
 @app.post("/create-user")
 def create_user(user_create: UserCreate):
-    #hashed_passwords = hash_password(user_create.password)
-    #user_create.password=hashed_passwords
+    hashed_passwords = hash_password(user_create.password)
+    user_create.password=hashed_passwords
     user_dict = user_create.dict()
     # Check if the username or id already exists
     #hashed_password = hash_password(user_create.password)
@@ -209,9 +209,9 @@ def get_location():
     return {"locations": locations}
 
 
-# def hash_password(password: str) -> str:
-#     hashed_password = hashlib.sha256(password.encode()).hexdigest()
-#     return hashed_password
+def hash_password(password: str) -> str:
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    return hashed_password
 
 # def verify_password(stored_password: str, provided_password: str) -> bool:
 #     hashed_provided_password = hashlib.sha256(provided_password.encode()).hexdigest()
