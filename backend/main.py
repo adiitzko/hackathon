@@ -316,28 +316,6 @@ class Location(BaseModel):
     longitude: float
     timestamp: datetime= datetime.now()
     isInDanger: bool = False  # Default value for isInDanger
-
-# @app.post("/add_location/")
-# def add_location(location: Location):
-#     user = users_collection.find_one({"username": location.username})
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-    
-#     if locations_collection.find_one({"username": location.username}):
-#         users_collection.delete_one({"username": location.username})
-
-#     location_id = str(uuid4())
-    
-#     location_data = {
-#         "_id": location_id,
-#         "username": location.username,
-#         "latitude": location.latitude,
-#         "longitude": location.longitude,
-#         "timestamp": location.timestamp.isoformat()
-#         }
-#     locations_collection.insert_one(location_data)
-#     return {"message": "Location added successfully", "location_id": location_id}
-        
     
    
   
@@ -381,12 +359,13 @@ class Message(BaseModel):
     send: str = Field(...)
     content: str = Field(...)
     time: str = Field(default_factory=lambda: datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))
-key = os.urandom(32) 
+key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
 @app.post("/create_message/")
 def create_message(messages: Message):
     try:
 
-        
+        m=encrypt_message(messages.content,key)
+        print(m)
         #encrypted_messaged = encrypt_message(messages.content, key)
         #print(encrypted_messaged)
         #message_dict["message"] = encrypted_messaged
