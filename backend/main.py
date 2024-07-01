@@ -336,7 +336,7 @@ async def add_location(location: Location):
 class Message(BaseModel):
     send: str = Field(...)
     content: str = Field(...)
-    time: datetime = Field(default_factory=datetime.utcnow)
+    time: str = Field(default_factory=lambda: datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))
 
 @app.post("/create_message/")
 def create_message(messages: Message):
@@ -355,7 +355,6 @@ def read_messages():
         
         for message in messages:
             message["_id"] = str(message["_id"]) 
-            message["time"] = message["time"].strftime("%Y-%m-%d %H:%M:%S")
         
         if messages:
             return messages
@@ -366,7 +365,6 @@ def read_messages():
             )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
-
 # @app.post("/create_message/")
 # def create_message(messages: Message):
 #     try:
