@@ -17,7 +17,7 @@ import string
 from typing import List, Dict
 import hashlib
 from bson import ObjectId
-# יצירת אובייקט ליצירה ובדיקת סיסמאות
+import models
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 MONGO_URI=MongoClient("mongodb+srv://adiitzko:adiitz2004@cluster0.is6jut3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
@@ -48,13 +48,6 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-# אפשר להוסיף middleware כדי לאפשר גישה ל-Frontend מה-Backend
-# @app.middleware("http")
-# async def add_cors_headers(request: Request, call_next):
-#     response = await call_next(request)
-#     response.headers["Access-Control-Allow-Origin"] = frontend_url
-#     response.headers["Access-Control-Allow-Headers"] = "*"
-#     return response
 
 # Define MongoDB connection setup function
 def connect_to_mongo():
@@ -115,31 +108,32 @@ def verify_jwt_token(token: str):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
-#@app.delete("/users/{id}", response_description="Delete a user")
-#def delete_user(id: str, request: Request, response: Response):
-    delete_result = request.app.database["users"].delete_one({"_id": id})
-
-    if delete_result.deleted_count == 1:
-        response.status_code = status.HTTP_204_NO_CONTENT
-        return response
-
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"User with ID {id} not found")
-
-class UserCreate(BaseModel):
-    id: str
-    username: str
-    password: str
-    role: str
-    phone_number: str
-    address: str
-    isInDanger: bool = False  # Default value for isInDanger
-    isAdmin:bool=False
-
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+@app.post("/test-login")
+def login(login_params: models.LoginParams):
+    user = app.database["users"].find_one({"username":login_params.username})
+    is_admin = user.get("isAdmin")
+    password=user.get("password")
+    passw=hash_password(login_params.password)
+    
+    if user is not None and password==passw:
+    #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
+        #token = create_jwt_token(login_params.username)
+       
+        #token=create_jwt_token(user)
+        if is_admin:
+          return {"status": "success_is_admin","user_id": str(user["_id"])}
+        else:
+          return {"status": "success_is_not_admin", "user_id": str(user["_id"])}        
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password"
+        )
 
 
 @app.post("/create-user")
-def create_user(user_create: UserCreate):
+def create_user(user_create: models.UserCreate):
     hashed_passwords = hash_password(user_create.password)
     user_create.password=hashed_passwords
     user_dict = user_create.dict()
@@ -182,6 +176,31 @@ def get_users():
         )
 
 
+
+def hash_password(password: str) -> str:
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    return hashed_password
+
+     
+
+
+@app.delete("/delete-user")
+def delete_user(user: models.UserDelete):
+    # Build the query filter
+    users_collection = app.database["users"]  
+    usertodelete= users_collection.find_one({"id":user.id})
+    
+    users_collection .delete_one({"id": user.id})
+    result=users_collection.find_one({"id":user.id})
+    # Ensure at least one field is provided
+    if not result:
+        return {"msg": "Item deleted successfully"}
+    if result:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least username, or id must be provided"
+        )
+
 @app.get("/get-location")
 def get_location():
     # Aggregate to fetch locations with user names
@@ -209,67 +228,6 @@ def get_location():
     
     return {"locations": locations}
 
-
-def hash_password(password: str) -> str:
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    return hashed_password
-
-
-
-
-class LoginParams(BaseModel):
-    username: str
-    password: str
-# def verify_password(plain_password: str, hashed_password: str) -> bool:
-#     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-@app.post("/test-login")
-def login(login_params: LoginParams):
-    user = app.database["users"].find_one({"username":login_params.username})
-    is_admin = user.get("isAdmin")
-    password=user.get("password")
-    passw=hash_password(login_params.password)
-    
-    if user is not None and password==passw:
-    #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
-        #token = create_jwt_token(login_params.username)
-       
-        #token=create_jwt_token(user)
-        if is_admin:
-          return {"status": "success_is_admin","user_id": str(user["_id"])}
-        else:
-          return {"status": "success_is_not_admin", "user_id": str(user["_id"])}        
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
-        )
-     
-
-
-# User deletion model
-class UserDelete(BaseModel):
-    username: str= Field(None, description="Username of the user")
-    id: str = Field(None, description="ID of the user")
-
-@app.delete("/delete-user")
-def delete_user(user: UserDelete):
-    # Build the query filter
-    users_collection = app.database["users"]  
-    usertodelete= users_collection.find_one({"id":user.id})
-    
-    users_collection .delete_one({"id": user.id})
-    result=users_collection.find_one({"id":user.id})
-    # Ensure at least one field is provided
-    if not result:
-        return {"msg": "Item deleted successfully"}
-    if result:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="At least username, or id must be provided"
-        )
-
-
 # @app.post("/messages/")
 # def create_message(messages: Message):
 #     message_dict = messages.dict()
@@ -281,13 +239,10 @@ def delete_user(user: UserDelete):
 #     messages = list( app.database["messages"].find())
 #     return messages
 
-class Message(BaseModel):
-    send: str = Field(...)
-    content: str = Field(...)
-    time: datetime = Field(default_factory=datetime.utcnow)
 
-@app.post("/messages/")
-def create_message(messages: Message):
+
+@app.post("/create_message/")
+def create_message(messages: models.Message):
     try:
         message_dict = messages.dict()
         app.database["messages"].insert_one(message_dict)
@@ -295,7 +250,7 @@ def create_message(messages: Message):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-@app.get("/messages/")
+@app.get("/read_messages/")
 def read_messages():
     try:
         messages_collection = app.database.messages  
