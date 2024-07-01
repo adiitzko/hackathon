@@ -23,7 +23,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 import os
-
+from base64 import b64encode, b64decode
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -136,19 +136,26 @@ router = APIRouter()
 # Include router for location API
 app.include_router(router, tags=["locations", "users","messages"], prefix="/api/v1")
 secret_key = generate_random_string()
-def encrypt_message_jwt(message, key):
-    payload = {"data": message}
-
-    # יצירת JWT עם חתימה דיגיטלית על ידי מפתח ה-AES
-    encrypted_token = jwt.encode(payload, key, algorithm='HS256')
-
-    return encrypted_token
+def encrypt_message(key, message):
+    backend = default_backend()
+    iv = b'\x00' * 16  # initialization vector, for simplicity using all zeros
+    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=backend)
+    encryptor = cipher.encryptor()
+    padder = padding.PKCS7(algorithms.AES.block_size).padder()
+    padded_data = padder.update(message.encode()) + padder.finalize()
+    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+    return b64encode(encrypted_data).decode()
 # פונקציה לפענוח הודעה מ-JWT
-def decrypt_message_jwt(encrypted_token, key):
-    # פענוח JWT עם וידוא חתימה על ידי מפתח ה-AES
-    decrypted_data = jwt.decode(encrypted_token, key, algorithms=['HS256'])
-
-    return decrypted_data['data']
+def decrypt_message(key, encrypted_message):
+    backend = default_backend()
+    iv = b'\x00' * 16  # initialization vector, should be the same as used for encryption
+    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=backend)
+    decryptor = cipher.decryptor()
+    encrypted_data = b64decode(encrypted_message.encode())
+    decrypted_padded_data = decryptor.update(encrypted_data) + decryptor.finalize()
+    unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
+    decrypted_data = unpadder.update(decrypted_padded_data) + unpadder.finalize()
+    return decrypted_data.decode()
 
 def generate_random_string(min_length=10, max_length=20):
     # הגדרת אורך המחרוזת
@@ -345,8 +352,7 @@ key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
 @app.post("/create_message/")
 def create_message(messages: Message):
     try:
-        m=messages.content
-
+        print(encrypt_message(messages.content))
         #print(encrypt_message_jwt(m,key))
         
         #encrypted_messaged = encrypt_message(messages.content, key)
