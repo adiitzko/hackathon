@@ -345,12 +345,12 @@ class Message(BaseModel):
     send: str = Field(...)
     content: str = Field(...)
     time: str = Field(default_factory=lambda: datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))
-
+key = os.urandom(32) 
 @app.post("/create_message/")
 def create_message(messages: Message):
     try:
 
-        key = os.urandom(32) 
+        
         encrypted_messaged = encrypt_message(messages.content, key)
         print(encrypted_messaged)
         message_dict = messages.dict()
@@ -366,14 +366,20 @@ def create_message(messages: Message):
 @app.get("/read_messages/")
 def read_messages():
     try:
+        mess=[]
         messages_collection = app.database.messages  
         messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}))
         
+
         for message in messages:
             message["_id"] = str(message["_id"]) 
-        
-        if messages:
-            return messages
+            message["content"]=decrypt_message(message,key)
+            m= message["content"]
+            mess.append(message)
+            message["content"]=encrypt_message(m,key)
+            mess.append(message)
+        if mess:
+            return mess
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
