@@ -55,8 +55,8 @@ load_dotenv(".env")
 frontend_url = "https://app.the-safe-zone.online"
 database = MONGO_URI.locationDB
 app = FastAPI()
-users_collection = app.database.users  
-locations_collection = app.database.locations
+users_collection = database.users  
+locations_collection = database.locations
 #app.config = {'SECRET_KEY': os.getenv("SECRET_KEY")}  
 #secret='SECRET_KEY'
 #api_base_url = os.getenv("SERVER_NAME")
