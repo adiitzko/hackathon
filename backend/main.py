@@ -125,6 +125,11 @@ def close_mongo_connection():
 # Call MongoDB connection setup function explicitly
 connect_to_mongo()
 
+def generate_key(length=32):
+    characters = string.ascii_letters + string.digits + string.punctuation
+    key = ''.join(random.choice(characters) for _ in range(length))
+    return key
+
 # Register shutdown hook to close MongoDB connection
 atexit.register(close_mongo_connection)
 router = APIRouter()
@@ -133,7 +138,7 @@ app.include_router(router, tags=["locations", "users","messages"], prefix="/api/
 secret_key = generate_random_string()
 def encrypt_message(message, key):
     # יצירת וקטור אתחול (IV) באורך 16 בתים
-    iv = os.urandom(16)
+    iv = generate_key(16)
     
     # יצירת cipher להצפנה עם מפתח ה-AES ומצב ה-CBC
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
