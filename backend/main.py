@@ -338,8 +338,8 @@ async def add_location(location: Location):
 def create_message(messages: Message):
     try:
         message_dict = messages.dict()
-        mess=encrypt_message(message_dict,secret_key)
-        app.database["messages"].insert_one(mess)
+       # mess=encrypt_message(message_dict,secret_key)
+        app.database["messages"].insert_one(message_dict)
         return {"message": "Message created successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
