@@ -280,7 +280,7 @@ def get_locations():
     locationss = []
     cursor =locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1})  
     for location in cursor:
-           if users_collection.find_one({"username":location.username}):
+           if users_collection.find_one({"username":location["username"]}):
               locationss.append(location)
     if locationss!=None:
         print(locationss)
