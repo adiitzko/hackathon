@@ -136,43 +136,19 @@ router = APIRouter()
 # Include router for location API
 app.include_router(router, tags=["locations", "users","messages"], prefix="/api/v1")
 secret_key = generate_random_string()
-def encrypt_message(message, key):
-    # יצירת וקטור אתחול (IV) באורך 16 בתים
-    iv = generate_key(16)
-    
-    # יצירת cipher להצפנה עם מפתח ה-AES ומצב ה-CBC
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    encryptor = cipher.encryptor()
-    
-    # הוספת padding להודעה כדי להתאים לגודל הבלוק של AES
-    padder = padding.PKCS7(algorithms.AES.block_size).padder()
-    padded_data = padder.update(message.encode()) + padder.finalize()
-    
-    # הצפנת ההודעה
-    encrypted_message = encryptor.update(padded_data) + encryptor.finalize()
-    
-    # החזרת וקטור האתחול (IV) משולב עם ההודעה המוצפנת
-    return iv + encrypted_message
+def encrypt_message_jwt(message, key):
+    payload = {"data": message}
 
-def decrypt_message(encrypted_message, key):
+    # יצירת JWT עם חתימה דיגיטלית על ידי מפתח ה-AES
+    encrypted_token = jwt.encode(payload, key, algorithm='HS256')
 
-    # הפרדת וקטור האתחול (IV) מההודעה המוצפנת
-    iv = encrypted_message[:16]
-   # encrypted_message = encrypted_message[16:]
-    
-    # יצירת cipher לפענוח עם מפתח ה-AES ומצב ה-CBC
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    decryptor = cipher.decryptor()
-    
-    # פענוח ההודעה המוצפנת
-    padded_data = decryptor.update(encrypted_message) + decryptor.finalize()
-    
-    # הסרת padding מההודעה המפוענחת
-    unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
-    message = unpadder.update(padded_data) + unpadder.finalize()
-    
-    return message.decode()
+    return encrypted_token
+# פונקציה לפענוח הודעה מ-JWT
+def decrypt_message_jwt(encrypted_token, key):
+    # פענוח JWT עם וידוא חתימה על ידי מפתח ה-AES
+    decrypted_data = jwt.decode(encrypted_token, key, algorithms=['HS256'])
 
+    return decrypted_data['data']
 
 def generate_random_string(min_length=10, max_length=20):
     # הגדרת אורך המחרוזת
@@ -369,7 +345,7 @@ key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
 def create_message(messages: Message):
     try:
 
-        m=encrypt_message(messages.content,key)
+        m=encrypt_message_jwt(messages.content,key)
         print(m)
         #encrypted_messaged = encrypt_message(messages.content, key)
         #print(encrypted_messaged)
