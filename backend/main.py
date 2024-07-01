@@ -366,20 +366,13 @@ def create_message(messages: Message):
 @app.get("/read_messages/")
 def read_messages():
     try:
-        mess=[]
         messages_collection = app.database.messages  
         messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}))
-        
 
         for message in messages:
             message["_id"] = str(message["_id"]) 
-            message["content"]=decrypt_message(message,key)
-            print(message)
-            m= message["content"]
-            print(m)
-            mess.append(m)
-            message["content"]=encrypt_message(m,key)
-            mess.append(message)
+            print(decrypt_message(message,key))
+           
         if messages:
             return messages
         else:
