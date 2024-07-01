@@ -355,8 +355,10 @@ def read_messages():
             message["time"] = message["time"].strftime("%Y-%m-%d %H:%M:%S")
         
         if messages:
-            mess=decrypt_message(message,secret_key)
-            return mess
+            # mess=decrypt_message(message,secret_key)
+            # return mess
+            return message
+            
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
