@@ -371,7 +371,7 @@ def read_messages():
         messages = list(messages_collection.find({"_id":0}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
         mess=[]
         for message in messages:
-            message["_id"] = str(message["_id"])
+           
             # message["content"]=decrypt_message(message,key)
             # m= message["content"]
             #mess.append(message)
@@ -380,7 +380,8 @@ def read_messages():
 
         if mess:
             print(mess)
-            return mess
+            print(messages)
+            return messages
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
