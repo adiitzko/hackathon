@@ -345,7 +345,9 @@ class Message(BaseModel):
 @app.post("/create_message/")
 def create_message(messages: Message):
     try:
+        print(messages)
         encrypted_messaged = encrypt_message(messages.content, secret_key)
+        print(encrypted_messaged)
         message_dict = messages.dict()
         print(encrypted_messaged)
         #message_dict["message"] = encrypted_messaged
