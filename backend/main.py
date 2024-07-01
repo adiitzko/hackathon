@@ -230,7 +230,8 @@ def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("role") == "admin"
     password=user.get("password")
-    passw=hash_password(password)
+    passw=hash_password(login_params.password)
+    #verify_password(password,login_params.password)
 
    # print(hash_password(password))
     
