@@ -172,8 +172,7 @@ def get_users():
     users = []
     cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  
     for user in cursor:
-        is_admin = user.get("isAdmin")
-        if not is_admin:
+        if user.get("isAdmin"):
            users.append(user)
     if users!=None:
         return users
