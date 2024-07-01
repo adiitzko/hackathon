@@ -318,10 +318,11 @@ class Location(BaseModel):
     isInDanger: bool = False  # Default value for isInDanger
 
 @app.post("/add_location/")
-async def add_location(location: Location):
+def add_location(location: Location):
     user = users_collection.find_one({"username": location.username})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
     if locations_collection.find_one({"username": location.username}):
         users_collection.delete_one({"username": location.username})
 
