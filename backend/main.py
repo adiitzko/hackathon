@@ -18,6 +18,7 @@ from typing import List, Dict
 import hashlib
 from bson import ObjectId
 from fastapi import APIRouter
+from uuid import uuid4
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -54,6 +55,8 @@ load_dotenv(".env")
 frontend_url = "https://app.the-safe-zone.online"
 database = MONGO_URI.locationDB
 app = FastAPI()
+users_collection = app.database.users  
+locations_collection = app.database.locations
 #app.config = {'SECRET_KEY': os.getenv("SECRET_KEY")}  
 #secret='SECRET_KEY'
 #api_base_url = os.getenv("SERVER_NAME")
@@ -188,7 +191,7 @@ def create_user(user_create: UserCreate):
     
 @app.get("/get-users", response_model=List[Dict[str, str]])
 def get_users():
-    users_collection = app.database.users  
+    
     users = []
     cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  
     for user in cursor:
@@ -227,44 +230,45 @@ def delete_user(user: UserDelete):
             detail="At least username, or id must be provided"
         )
 
-@app.get("/get-location")
-def get_location():
-    # Aggregate to fetch locations with user names
-    locations = list(app.database["locations"].aggregate([
-        {
-            "$lookup": {
-                "from": "users",
-                "localField": "user_id",
-                "foreignField": "_id",
-                "as": "user_info"
-            }
-        },
-        {
-            "$project": {
-                "_id": 0,
-                "location_id": "$_id",
-                "user_id": 1,
-                "username": {"$arrayElemAt": ["$user_info.username", 0]},
-                "latitude": 1,
-                "longitude": 1,
-                "timestamp": 1
-            }
-        }
-    ]))
+@app.get("/get-locations")
+def get_locations():
+    locationss = []
+    cursor =locations_collection.find({}, {"_id": 0, "user_id":1,"username": 1, "latitude": 1, "longitude": 1})  
+    for location in cursor:
+           if users_collection.find_one({"id":location.id}):
+              locationss.append(location)
+    if locationss!=None:
+        return locationss
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+
+class Location(BaseModel):
+    username: str
+    latitude: float
+    longitude: float
+    timestamp: datetime
+
+@app.post("/add_location/")
+async def add_location(location: Location):
+    user = users_collection.find_one({"username": location.username})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     
-    return {"locations": locations}
-
-# @app.post("/messages/")
-# def create_message(messages: Message):
-#     message_dict = messages.dict()
-#     app.database["messages"].insert_one(message_dict)
-#     return {"message": "Message created successfully"}
-
-# @app.get("/messages/")
-# def read_messages():
-#     messages = list( app.database["messages"].find())
-#     return messages
-
+    location_id = str(uuid4())
+    
+    location_data = {
+        "_id": location_id,
+        "user_id": user["id"],
+        "latitude": location.latitude,
+        "longitude": location.longitude,
+        "timestamp": location.timestamp.isoformat()
+    }
+    locations_collection.insert_one(location_data)
+    return {"message": "Location added successfully", "location_id": location_id}
 
 
 @app.post("/create_message/")
@@ -284,6 +288,7 @@ def read_messages():
         
         for message in messages:
             message["_id"] = str(message["_id"]) 
+            message["time"] = message["time"].strftime("%Y-%m-%d %H:%M:%S")
         
         if messages:
             return messages
