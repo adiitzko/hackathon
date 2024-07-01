@@ -134,7 +134,7 @@ class UserCreate(BaseModel):
     phone_number: str
     address: str
     isInDanger: bool = False  # Default value for isInDanger
-    isAdmin:bool=False
+    isAdmin:str="false"
 
 
 
@@ -172,7 +172,7 @@ def get_users():
     users = []
     cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  
     for user in cursor:
-        if not user.get("isAdmin")!="true":
+        if user.get("isAdmin")=="false":
            users.append(user)
     if users!=None:
         return users
