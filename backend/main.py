@@ -17,6 +17,7 @@ import string
 from typing import List, Dict
 import hashlib
 from bson import ObjectId
+from fastapi import APIRouter
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -96,7 +97,7 @@ connect_to_mongo()
 
 # Register shutdown hook to close MongoDB connection
 atexit.register(close_mongo_connection)
-
+router = APIRouter()
 # Include router for location API
 app.include_router(router, tags=["locations", "users","messages"], prefix="/api/v1")
 
