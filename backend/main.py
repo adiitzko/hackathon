@@ -326,16 +326,20 @@ async def add_location(location: Location):
     if loc:
         loc["latitude"]=location.latitude
         loc["longitude"]=location.longitude
-    location_data = {
+        print("yes")
+        return {"message": "Location added successfully", "location_id": location_id}
+    else:
+        location_data = {
         "_id": location_id,
         "username": location.username,
         "latitude": location.latitude,
         "longitude": location.longitude,
         "timestamp": location.timestamp.isoformat()
+        }
+        locations_collection.insert_one(location_data)
+        return {"message": "Location added successfully", "location_id": location_id}
         
-    }
-    locations_collection.insert_one(location_data)
-    return {"message": "Location added successfully", "location_id": location_id}
+    
 
 class Message(BaseModel):
     send: str = Field(...)
@@ -346,7 +350,7 @@ class Message(BaseModel):
 def create_message(messages: Message):
     try:
 
-        key = b'Sixteen byte key' 
+        key = os.urandom(32) 
         encrypted_messaged = encrypt_message(messages.content, key)
         print(encrypted_messaged)
         message_dict = messages.dict()
@@ -362,15 +366,16 @@ def create_message(messages: Message):
 @app.get("/read_messages/")
 def read_messages():
     try:
+        key = os.urandom(32) 
         messages_collection = app.database.messages  
         messages = list(messages_collection.find({"_id":0}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
         mess=[]
         for message in messages:
             message["_id"] = str(message["_id"])
-            message["content"]=decrypt_message(message,secret_key)
+            message["content"]=decrypt_message(message,key)
             m= message["content"]
             mess.append(message)
-            message["content"]=encrypt_message(m,secret_key)
+            message["content"]=encrypt_message(m,key)
         
         if mess:
             #print(messages)
