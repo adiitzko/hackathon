@@ -333,32 +333,31 @@ async def add_location(location: Location):
     locations_collection.insert_one(location_data)
     return {"message": "Location added successfully", "location_id": location_id}
 
+class Message(BaseModel):
+    send: str = Field(...)
+    content: str = Field(...)
+    time: datetime = Field(default_factory=datetime.utcnow)
 
-@app.post("/create_message/")
+@app.post("/messages/")
 def create_message(messages: Message):
     try:
         message_dict = messages.dict()
-       # mess=encrypt_message(message_dict,secret_key)
         app.database["messages"].insert_one(message_dict)
         return {"message": "Message created successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-@app.get("/read_messages/")
+@app.get("/messages/")
 def read_messages():
     try:
         messages_collection = app.database.messages  
-        messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
+        messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}))
         
         for message in messages:
             message["_id"] = str(message["_id"]) 
-            message["time"] = message["time"].strftime("%Y-%m-%d %H:%M:%S")
         
         if messages:
-            # mess=decrypt_message(message,secret_key)
-            # return mess
-            return message
-            
+            return messages
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -366,6 +365,39 @@ def read_messages():
             )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+
+# @app.post("/create_message/")
+# def create_message(messages: Message):
+#     try:
+#         message_dict = messages.dict()
+#        # mess=encrypt_message(message_dict,secret_key)
+#         app.database["messages"].insert_one(message_dict)
+#         return {"message": "Message created successfully"}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+# @app.get("/read_messages/")
+# def read_messages():
+#     try:
+#         messages_collection = app.database.messages  
+#         messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
+        
+#         for message in messages:
+#             message["_id"] = str(message["_id"]) 
+#             message["time"] = message["time"].strftime("%Y-%m-%d %H:%M:%S")
+        
+#         if messages:
+#             # mess=decrypt_message(message,secret_key)
+#             # return mess
+#             return message
+            
+#         else:
+#             raise HTTPException(
+#                 status_code=status.HTTP_404_NOT_FOUND,
+#                 detail="No messages found"
+#             )
+#     except Exception as e:
+#         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
 
 
 
