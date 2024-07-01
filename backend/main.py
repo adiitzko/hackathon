@@ -338,7 +338,7 @@ class Message(BaseModel):
     content: str = Field(...)
     time: datetime = Field(default_factory=datetime.utcnow)
 
-@app.post("/messages/")
+@app.post("/create_message/")
 def create_message(messages: Message):
     try:
         message_dict = messages.dict()
@@ -347,7 +347,7 @@ def create_message(messages: Message):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-@app.get("/messages/")
+@app.get("/read_messages/")
 def read_messages():
     try:
         messages_collection = app.database.messages  
