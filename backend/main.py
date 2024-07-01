@@ -71,7 +71,7 @@ origins = [
     "https://app.the-safe-zone.online"
 ]
 
-def generate_random_string(min_length=16, max_length=32):
+def generate_random_string(min_length=32, max_length=32):
     # הגדרת אורך המחרוזת
     length = random.randint(min_length, max_length)
     
