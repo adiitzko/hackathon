@@ -320,25 +320,25 @@ async def add_location(location: Location):
     user = users_collection.find_one({"username": location.username})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
+    if locations_collection.find_one({"username": location.username}):
+        users_collection.delete_one({"username": location.username})
+
     location_id = str(uuid4())
-    loc=locations_collection.find_one({"username": location.username})
-    if loc:
-        loc["latitude"]=location.latitude
-        loc["longitude"]=location.longitude
-        print("yes")
-        return {"message": "Location added successfully", "location_id": location_id}
-    else:
-        location_data = {
+    
+    location_data = {
         "_id": location_id,
         "username": location.username,
         "latitude": location.latitude,
         "longitude": location.longitude,
         "timestamp": location.timestamp.isoformat()
         }
-        locations_collection.insert_one(location_data)
-        return {"message": "Location added successfully", "location_id": location_id}
+    locations_collection.insert_one(location_data)
+    return {"message": "Location added successfully", "location_id": location_id}
         
+    
+   
+  
+    
     
 
 class Message(BaseModel):
@@ -374,12 +374,14 @@ def read_messages():
         for message in messages:
             message["_id"] = str(message["_id"]) 
             message["content"]=decrypt_message(message,key)
+            print(message)
             m= message["content"]
-            mess.append(message)
+            print(m)
+            mess.append(m)
             message["content"]=encrypt_message(m,key)
             mess.append(message)
-        if mess:
-            return mess
+        if messages:
+            return messages
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
