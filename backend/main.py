@@ -150,9 +150,10 @@ def encrypt_message(message, key):
     return iv + encrypted_message
 
 def decrypt_message(encrypted_message, key):
+
     # הפרדת וקטור האתחול (IV) מההודעה המוצפנת
     iv = encrypted_message[:16]
-    encrypted_message = encrypted_message[16:]
+   # encrypted_message = encrypted_message[16:]
     
     # יצירת cipher לפענוח עם מפתח ה-AES ומצב ה-CBC
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
@@ -166,6 +167,7 @@ def decrypt_message(encrypted_message, key):
     message = unpadder.update(padded_data) + unpadder.finalize()
     
     return message.decode()
+
 
 def generate_random_string(min_length=10, max_length=20):
     # הגדרת אורך המחרוזת
