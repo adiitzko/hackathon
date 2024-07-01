@@ -352,7 +352,7 @@ def create_message(messages: Message):
 def read_messages():
     try:
         messages_collection = app.database.messages  
-        messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
+        messages = list(messages_collection.find({"_id":0}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
         
         for message in messages:
             message["_id"] = str(message["_id"]) 
