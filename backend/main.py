@@ -3,7 +3,7 @@ from fastapi import FastAPI,Body,Request,Response, HTTPException, status, HTTPEx
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from routes import router
+# from routes import router
 import atexit
 import jwt
 from datetime import datetime, timedelta
