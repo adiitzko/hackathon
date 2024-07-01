@@ -172,7 +172,8 @@ def get_users():
     users = []
     cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  
     for user in cursor:
-        users.append(user)
+        if not user.get["isAdmnin"]:
+           users.append(user)
     if users!=None:
         return users
     else:
