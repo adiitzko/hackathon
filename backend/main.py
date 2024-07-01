@@ -322,8 +322,10 @@ async def add_location(location: Location):
         raise HTTPException(status_code=404, detail="User not found")
     
     location_id = str(uuid4())
-    if locations_collection.find_one({"username": location.username}):
-        
+    loc=locations_collection.find_one({"username": location.username})
+    if loc:
+        loc["latitude"]=location.latitude
+        loc["longitude"]=location.longitude
     location_data = {
         "_id": location_id,
         "username": location.username,
