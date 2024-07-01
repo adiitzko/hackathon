@@ -372,13 +372,14 @@ def read_messages():
         mess=[]
         for message in messages:
             message["_id"] = str(message["_id"])
-            message["content"]=decrypt_message(message,key)
-            m= message["content"]
+            # message["content"]=decrypt_message(message,key)
+            # m= message["content"]
+            #mess.append(message)
+            # message["content"]=encrypt_message(m,key)
             mess.append(message)
-            message["content"]=encrypt_message(m,key)
-        
+
         if mess:
-            #print(messages)
+            print(mess)
             return mess
         else:
             raise HTTPException(
