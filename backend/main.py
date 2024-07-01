@@ -366,21 +366,13 @@ def create_message(messages: Message):
 @app.get("/read_messages/")
 def read_messages():
     try:
-        key = os.urandom(32) 
         messages_collection = app.database.messages  
-        messages = list(messages_collection.find({"_id":0}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
-        mess=[]
+        messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}))
+        
         for message in messages:
-           
-            # message["content"]=decrypt_message(message,key)
-            # m= message["content"]
-            #mess.append(message)
-            # message["content"]=encrypt_message(m,key)
-            mess.append(message)
-
-        if mess:
-            print(mess)
-            print(messages)
+            message["_id"] = str(message["_id"]) 
+        
+        if messages:
             return messages
         else:
             raise HTTPException(
@@ -388,7 +380,31 @@ def read_messages():
                 detail="No messages found"
             )
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+    # try:
+    #     key = os.urandom(32) 
+    #     messages_collection = app.database.messages  
+    #     messages = list(messages_collection.find({"_id":0}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
+    #     mess=[]
+    #     for message in messages:
+           
+    #         # message["content"]=decrypt_message(message,key)
+    #         # m= message["content"]
+    #         #mess.append(message)
+    #         # message["content"]=encrypt_message(m,key)
+    #         mess.append(message)
+
+    #     if mess:
+    #         print(mess)
+    #         print(messages)
+    #         return messages
+    #     else:
+    #         raise HTTPException(
+    #             status_code=status.HTTP_404_NOT_FOUND,
+    #             detail="No messages found"
+    #         )
+    # except Exception as e:
+    #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
 
 @app.put("/isdanger/")
 def set_isdanger(user_id: str):
