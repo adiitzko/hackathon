@@ -80,7 +80,7 @@ connect_to_mongo()
 atexit.register(close_mongo_connection)
 
 # Include router for location API
-app.include_router(router, tags=["locations", "users"], prefix="/api/v1")
+app.include_router(router, tags=["locations", "users","messages"], prefix="/api/v1")
 
 
 def generate_random_string(min_length=10, max_length=20):
@@ -268,6 +268,19 @@ def delete_user(user: UserDelete):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least username, or id must be provided"
         )
+
+
+# @app.post("/messages/")
+# def create_message(messages: Message):
+#     message_dict = messages.dict()
+#     app.database["messages"].insert_one(message_dict)
+#     return {"message": "Message created successfully"}
+
+# @app.get("/messages/")
+# def read_messages():
+#     messages = list( app.database["messages"].find())
+#     return messages
+
 class Message(BaseModel):
     send: str = Field(...)
     content: str = Field(...)
@@ -275,15 +288,31 @@ class Message(BaseModel):
 
 @app.post("/messages/")
 def create_message(messages: Message):
-    message_dict = messages.dict()
-    app.database["messages"].insert_one(message_dict)
-    return {"message": "Message created successfully"}
+    try:
+        message_dict = messages.dict()
+        app.database["messages"].insert_one(message_dict)
+        return {"message": "Message created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
 @app.get("/messages/")
 def read_messages():
-    messages = list( app.database["messages"].find())
-    return messages
-
+    try:
+        messages_collection = app.database.messages  
+        messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
+        
+        for message in messages:
+            message["_id"] = str(message["_id"]) 
+        
+        if messages:
+            return messages
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No messages found"
+            )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
 
 
 
