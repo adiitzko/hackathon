@@ -283,6 +283,7 @@ def get_locations():
            if users_collection.find_one({"username":location.username}):
               locationss.append(location)
     if locationss!=None:
+        print(locationss)
         return locationss
     else:
         raise HTTPException(
@@ -346,7 +347,7 @@ def create_message(messages: Message):
     try:
         m=messages.content
 
-        print(encrypt_message_jwt(m,key))
+        #print(encrypt_message_jwt(m,key))
         
         #encrypted_messaged = encrypt_message(messages.content, key)
         #print(encrypted_messaged)
