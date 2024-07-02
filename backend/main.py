@@ -399,19 +399,21 @@ def create_message(messages: Message):
 @app.get("/read_messages/", response_model=List[Message])
 def read_messages():
     try:
-        messages_collection = app.database["messages"]
-        messages = list(messages_collection.find({}, {"send": 1, "content": 1, "time": 1}))
+        mess=[]
+        messages_collection = database.messages
+        messages = messages_collection.find({}, {"send": 1, "content": 1, "time": 1})
 
         for message in messages:
             try:
                 encrypted_content = message["content"]
                 decrypted_content = decrypt_string(key, encrypted_content.encode())
                 message["content"] = decrypted_content
+                mess.append(message)
             except Exception as e:
                 print(f"Error decrypting message: {e}")
 
-        if messages:
-            return messages
+        if mess:
+            return mess
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No messages found")
     except Exception as e:
