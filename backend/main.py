@@ -291,8 +291,9 @@ def get_locations():
     for location in cursor:
            if users_collection.find_one({"username":location["username"]}):
               locationss.append(location)
+              print(location)
     if locationss!=None:
-        print(locationss)
+       # print(locationss)
         return locationss
     else:
         raise HTTPException(
