@@ -402,7 +402,7 @@ def read_messages():
         mess=[]
 
         for message in messages:
-            decrypt=decrypt_string(key,message.content)
+            decrypt=decrypt_string(key,message["content"])
             message["content"]=decrypt
             message["_id"] = str(message["_id"]) 
             mess.append(message)
@@ -410,8 +410,8 @@ def read_messages():
             
             #print(decrypt_message(message,key))
            
-        if mess:
-            return mess
+        if messages:
+            return messages
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
