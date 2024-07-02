@@ -407,7 +407,7 @@ def read_messages():
         for message in messages:
             try:
                 # ודא שמספר המסרים לא יעודכן עם מחרוזת תווים
-                if "content" in message:
+                
                     encrypted_content = message["content"]
                     
                     # אם המחרוזת מוצפנת, המיר אותה ל- bytes
@@ -415,8 +415,8 @@ def read_messages():
                         encrypted_content = encrypted_content.encode()
 
                     # פענוח התוכן
-                    decrypted_content = decrypt_string(key, encrypted_content)
-                    message["content"] =str( decrypted_content)
+                    #decrypted_content = decrypt_string(key, encrypted_content)
+                    #message["content"] =str( decrypted_content)
                     mess.append(message)
             except Exception as e:
                 print(f"Error decrypting message: {e}")
