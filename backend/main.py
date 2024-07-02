@@ -28,7 +28,8 @@ from cryptography.fernet import Fernet
 import base64
 from starlette.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-
+from starlette.responses import StreamingResponse
+import io
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class UserCreate(BaseModel):
@@ -631,9 +632,22 @@ def get_meeting():
         raise HTTPException(status_code=500, detail=f"Failed to fetch meeting: {str(e)}")
     
 @app.get("/")
-def read_roots():
-    # נתיב מוחלט לתמונה
-    return{""}
+async def read_roots():
+    try:
+        image_path ="C:\Users\1\לימודים\שנה ב\hackton\hackathon\backend\static\logo.jpg"  # נתיב מלא לקובץ התמונה
+
+        with open(image_path, "rb") as image_file:
+            image_data = image_file.read()
+
+        return StreamingResponse(io.BytesIO(image_data), media_type="image/png")
+
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Image not found: {str(e)}")   
+# @app.get("/")
+# def read_roots():
+#     # נתיב מוחלט לתמונה
+
+#     return{""}
 
 
 if __name__ == "__main__":
