@@ -632,12 +632,12 @@ def get_meeting():
     
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# מגדירים את דף הבית שיגיש את התמונה
 @app.get("/")
 def read_roots():
-    # תמונה נמצאת בתיקית הפרוייקט שלך
-    image_path = "static/logo.jpg"
-    return FileResponse(image_path, media_type="image/png")
+    # שימוש בנתיב יחסי לתמונה
+    current_dir = os.path.dirname(__file__)
+    image_path = os.path.join(current_dir, "static", "logo.jpg")
+    return FileResponse(image_path)
 
 if __name__ == "__main__":
     import uvicorn
