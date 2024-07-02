@@ -222,7 +222,7 @@ def create_user(user_create: UserCreate):
     user_create.password=hashed_passwords
     user_dict = user_create.dict()
     # Check if the username or id already exists
-    hashed_password = hash_password(user_create.password)
+    #hashed_password = hash_password(user_create.password)
     existing_user = app.database["users"].find_one({"id": user_create.id})
     if existing_user:
         raise HTTPException(
@@ -382,8 +382,9 @@ def create_message(messages: Message):
         #print(encrypted_messaged)
         #message_dict["message"] = encrypted_messaged
         encrypted_messaged=encrypt_string(key, messages.content)
-        message_dict["message"] = encrypted_messaged
+        messages.content = encrypted_messaged
         message_dict = messages.dict()
+       
         #print(encrypted_messaged)
        
         
