@@ -353,7 +353,7 @@ def add_location(location: Location):
     
 def generate_key():
     return Fernet.generate_key()
-key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
+key=b'&3F$gH#kMn5PdQsT!vYp2s5vX@zC&f5Y'
 # הצפנת מחרוזת תווים
 def encrypt_string(key, string):
     fernet = Fernet(key)
