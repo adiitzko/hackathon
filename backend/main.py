@@ -633,7 +633,7 @@ def get_meeting():
 def read_roots():
     #return{}
     # תמונה נמצאת בתיקית הפרוייקט שלך
-    image_path = "logo.jpg"
+    image_path = "/logo.jpg"
     return FileResponse(image_path, media_type="image/png")
 
 if __name__ == "__main__":
