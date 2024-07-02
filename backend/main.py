@@ -634,7 +634,7 @@ def get_meeting():
 @app.get("/")
 async def read_roots():
     try:
-        image_path ="backend\static\logo.jpg"  # נתיב מלא לקובץ התמונה
+        image_path ="backend/static/logo.jpg"  # נתיב מלא לקובץ התמונה
 
         with open(image_path, "rb") as image_file:
             image_data = image_file.read()
