@@ -360,7 +360,8 @@ def add_location(location: Location):
         "username": location.username,
         "latitude": location.latitude,
         "longitude": location.longitude,
-        "timestamp": location.timestamp.isoformat()
+        "timestamp": location.timestamp.isoformat(),
+        "isInDanger":False
     }
     
     # הוספת המיקום החדש למאגר הנתונים
@@ -420,7 +421,7 @@ def create_message(messages: Message):
         
 
         app.database["messages"].insert_one(message_dict)
-        delete_old_messages()
+       
         return {"message": "Message created successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
