@@ -353,7 +353,7 @@ def add_location(location: Location):
     
 def generate_key():
     return Fernet.generate_key()
-
+key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
 # הצפנת מחרוזת תווים
 def encrypt_string(key, string):
     fernet = Fernet(key)
@@ -364,7 +364,7 @@ def encrypt_string(key, string):
 
 def decrypt_string(key, encrypted_string):
     #key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
-    encrypted_content = encrypted_content.encode()
+    encrypted_string = encrypted_string.encode()
     fernet = Fernet(key)
     decrypted_string = fernet.decrypt(encrypted_string).decode()
     return decrypted_string
@@ -375,7 +375,7 @@ class Message(BaseModel):
     time: str = Field(default_factory=lambda: datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))
 #key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
 #key=generate_key()
-key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
+# key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
 @app.post("/create_message/")
 def create_message(messages: Message):
     try:
