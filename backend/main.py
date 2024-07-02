@@ -364,6 +364,7 @@ def encrypt_string(key, string):
 
 def decrypt_string(key, encrypted_string):
     #key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
+    encrypted_content = encrypted_content.encode()
     fernet = Fernet(key)
     decrypted_string = fernet.decrypt(encrypted_string).decode()
     return decrypted_string
@@ -415,7 +416,7 @@ def read_messages():
                         encrypted_content = encrypted_content.encode()
 
                     # פענוח התוכן
-                    decrypted_content = decrypt_string(key, encrypted_content)
+                    #decrypted_content = decrypt_string(key, encrypted_content)
                     #message["content"] =str( decrypted_content)
                     mess.append(message)
             except Exception as e:
