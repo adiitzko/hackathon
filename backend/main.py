@@ -633,8 +633,7 @@ def get_meeting():
 @app.get("/")
 def read_roots():
     # נתיב מוחלט לתמונה
-    image_path = "C:\Users\1\לימודים\שנה ב\hackton\hackathon\backend\logo.jpg"
-    return FileResponse(image_path)
+    return{""}
 
 
 if __name__ == "__main__":
