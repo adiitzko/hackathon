@@ -631,18 +631,17 @@ def get_meeting():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch meeting: {str(e)}")
     
+
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# מגדירים את דף הבית שיגיש את התמונה
 @app.get("/")
-async def read_roots():
-    try:
-        image_path ="backend/static/logo.jpg"  # נתיב מלא לקובץ התמונה
+def read_roots():
+    # תמונה נמצאת בתיקית הפרוייקט שלך
+    image_path ="backend/static/logo.jpg" 
+    return FileResponse(image_path, media_type="image/png")
 
-        with open(image_path, "rb") as image_file:
-            image_data = image_file.read()
-
-        return StreamingResponse(io.BytesIO(image_data), media_type="image/png")
-
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=f"Image not found: {str(e)}")   
 # @app.get("/")
 # def read_roots():
 #     # נתיב מוחלט לתמונה
