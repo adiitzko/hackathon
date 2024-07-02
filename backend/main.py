@@ -368,9 +368,9 @@ def decrypt_string(encrypted_message, key):
         fernet = Fernet(key)
         decrypted_bytes = fernet.decrypt(encrypted_message)
         print(decrypted_bytes)
-        #decrypted_message = decrypted_bytes.decode()
-        print(decrypted_bytes)
-        return str(decrypted_bytes)
+        decrypted_message = decrypted_bytes.decode()
+        print(decrypted_message)
+        return str(decrypted_message)
     except Exception as e:
         return str(e)
 # def decrypt_string(key, encrypted_string):
@@ -396,8 +396,7 @@ def create_message(messages: Message):
         #encrypted_messaged = encrypt_message(messages.content, key)
         #print(encrypted_messaged)
         #message_dict["message"] = encrypted_messaged
-        encrypted_messaged=encrypt_string(key, messages.content)
-        messages.content = str(encrypted_messaged)
+        
         message_dict = messages.dict()
        
         #print(encrypted_messaged)
@@ -417,49 +416,22 @@ def read_messages():
         messages = list(messages_collection.find({}, {"send": 1, "content": 1, "time": 1}))
 
         for message in messages:
-            try:
+          
+                message["_id"]=str(message["_id"])
                
-                encrypted_content = message["content"]
-                print(encrypted_content)
                 
-                decrypted_content = decrypt_string(message["content"],key)
+        
                 #print(str(decrypt_string(encrypted_content,key)))
-                message["content"] = decrypted_content
-                mess.append(message)
-            except Exception as e:
-                print(f"Error decrypting message: {e}")
+               
 
-        if mess:
-            print(mess)
-            return mess
+        if messages:
+           
+            return messages
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No messages found")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
-    # try:
-    #     key = os.urandom(32) 
-    #     messages_collection = app.database.messages  
-    #     messages = list(messages_collection.find({"_id":0}, { "send": 1, "content": 1, "time": 1}).sort("time",-1))
-    #     mess=[]
-    #     for message in messages:
-           
-    #         # message["content"]=decrypt_message(message,key)
-    #         # m= message["content"]
-    #         #mess.append(message)
-    #         # message["content"]=encrypt_message(m,key)
-    #         mess.append(message)
-
-    #     if mess:
-    #         print(mess)
-    #         print(messages)
-    #         return messages
-    #     else:
-    #         raise HTTPException(
-    #             status_code=status.HTTP_404_NOT_FOUND,
-    #             detail="No messages found"
-    #         )
-    # except Exception as e:
-    #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+    
 
 @app.put("/isdanger/")
 def set_isdanger(user_id: str):
