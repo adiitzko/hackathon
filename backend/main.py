@@ -364,7 +364,7 @@ def encrypt_string(key, string):
 
 def decrypt_string(key, encrypted_string):
     #key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
-    encrypted_string = encrypted_string.encode()
+    
     fernet = Fernet(key)
     decrypted_string = fernet.decrypt(encrypted_string).decode()
     return decrypted_string
