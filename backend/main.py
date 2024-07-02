@@ -409,12 +409,12 @@ def read_messages():
                 encrypted_content = message["content"]
                 decrypted_content = decrypt_string(key, encrypted_content.encode())
                 message["content"] = decrypted_content
-                mess.append(message)
+                
             except Exception as e:
                 print(f"Error decrypting message: {e}")
 
-        if mess:
-            return mess
+        if messages:
+            return messages
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No messages found")
     except Exception as e:
