@@ -354,7 +354,7 @@ def add_location(location: Location):
     
 def generate_key():
     return Fernet.generate_key()
-key=b'&3F$gH#kMn5PdQsT!vYp2s5vX@zC&f5Y'
+
 # הצפנת מחרוזת תווים
 def encrypt_string(key, string):
     fernet = Fernet(key)
@@ -363,9 +363,10 @@ def encrypt_string(key, string):
 
 def decrypt_string(encrypted_message, key):
     try:
-        # פענוח המחרוזת המוצפנת מבצע קידוד base64 וממיר למחרוזת
-        decoded_message = base64.b64decode(encrypted_message).decode('utf-8')
-        return decoded_message
+        fernet = Fernet(key)
+        decrypted_bytes = fernet.decrypt(encrypted_message)
+        decrypted_message = decrypted_bytes.decode()
+        return decrypted_message
     except Exception as e:
         return str(e)
 # def decrypt_string(key, encrypted_string):
@@ -381,6 +382,7 @@ class Message(BaseModel):
 #key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
 #key=generate_key()
 # key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
+key=generate_key()
 @app.post("/create_message/")
 def create_message(messages: Message):
     try:
@@ -412,8 +414,9 @@ def read_messages():
 
         for message in messages:
             try:
+               
                 encrypted_content = message["content"]
-                decrypted_content = str(decrypt_string(key, encrypted_content.encode()))
+                decrypted_content = str(decrypt_string(encrypted_content.encode(),key))
                 message["content"] = decrypted_content
                 
             except Exception as e:
@@ -500,12 +503,13 @@ if __name__ == "__main__":
     import uvicorn
     #user = app.database["users"].find_one({"username":"adam"})
     try:
-       key = generate_key()  # יצירת מפתח חדש
+       key=generate_key()
+         # יצירת מפתח חדש
        original_string = "Hello, World!"
        encrypted_string = encrypt_string(key, original_string)
     
        if encrypted_string is not None:
-        decrypted_string = decrypt_string(key, encrypted_string)
+        decrypted_string = decrypt_string( encrypted_string,key)
     
         print(f"מפתח: {key}")
         print(f"מחרוזת מקורית: {original_string}")
