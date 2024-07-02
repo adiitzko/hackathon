@@ -25,6 +25,7 @@ from cryptography.hazmat.backends import default_backend
 import os
 from base64 import b64encode, b64decode
 from cryptography.fernet import Fernet
+import base64
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -360,24 +361,13 @@ def encrypt_string(key, string):
     encrypted_string = fernet.encrypt(string.encode())
     return encrypted_string
 
-# התפצנת מחרוזת תווים
 def decrypt_string(encrypted_message, key):
-    # פירוק ה-IV וההודעה המוצפנת
-    iv = encrypted_message[:16]
-    encrypted_message = encrypted_message[16:]
-    
-    # יצירת מפתח הצפנה מהמפתח המסופק
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    decryptor = cipher.decryptor()
-    
-    # פענוח ההודעה המוצפנת
-    decrypted_padded_data = decryptor.update(encrypted_message) + decryptor.finalize()
-    
-    # הסרת padding מההודעה
-    unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
-    decrypted_message = unpadder.update(decrypted_padded_data) + unpadder.finalize()
-    
-    return decrypted_message.decode('utf-8')
+    try:
+        # פענוח המחרוזת המוצפנת מבצע קידוד base64 וממיר למחרוזת
+        decoded_message = base64.b64decode(encrypted_message).decode('utf-8')
+        return decoded_message
+    except Exception as e:
+        return str(e)
 # def decrypt_string(key, encrypted_string):
 #     fernet = Fernet(key)
 #     decrypted_bytes = fernet.decrypt(encrypted_string)
