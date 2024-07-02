@@ -401,15 +401,21 @@ def create_message(messages: Message):
 def read_messages():
     try:
         messages_collection = app.database.messages  
-        messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}))
-        
+        messages = list(messages_collection.find({}, {"send": 1, "content": 1, "time": 1}))
+
         for message in messages:
             try:
-                # פענוח תוכן ההודעה
-                if isinstance(encrypted_content, str):
-                    encrypted_content = encrypted_content.encode('utf-8')
-                decrypted_content = decrypt_string(key, encrypted_content)
-                message["content"] = decrypted_content
+                # ודא שמספר המסרים לא יעודכן עם מחרוזת תווים
+                if "content" in message:
+                    encrypted_content = message["content"]
+                    
+                    # אם המחרוזת מוצפנת, המיר אותה ל- bytes
+                    if isinstance(encrypted_content, str):
+                        encrypted_content = encrypted_content.encode()
+
+                    # פענוח התוכן
+                    decrypted_content = decrypt_string(key, encrypted_content)
+                    message["content"] = decrypted_content
             except Exception as e:
                 print(f"Error decrypting message: {e}")
 
