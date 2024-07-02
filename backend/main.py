@@ -137,7 +137,7 @@ connect_to_mongo()
 atexit.register(close_mongo_connection)
 router = APIRouter()
 # Include router for location API
-app.include_router(router, tags=["locations", "users","messages"], prefix="/api/v1")
+app.include_router(router, tags=["locations", "users","messages","meetings"], prefix="/api/v1")
 # secret_key = generate_random_string()
 # def encrypt_message(key, message):
 #     backend = default_backend()
