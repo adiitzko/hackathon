@@ -407,26 +407,33 @@ def create_message(messages: Message):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
+def decrypt_string(encrypted_message, key):
+    try:
+        fernet = Fernet(key)
+        decrypted_bytes = fernet.decrypt(encrypted_message)
+        decrypted_message = decrypted_bytes.decode()
+        return decrypted_message
+    except Exception as e:
+        raise ValueError(f"Error decrypting message: {e}")
+
+# נתיב לקריאת הודעות
 @app.get("/read_messages/", response_model=List[Message])
 def read_messages():
     try:
-        mess=[]
+        mess = []
         messages_collection = app.database.messages
         messages = list(messages_collection.find({}, {"send": 1, "content": 1, "time": 1}))
 
         for message in messages:
             try:
-               
                 encrypted_content = message["content"]
-                decrypted_content = decrypt_string(encrypted_content,key)
-                print(decrypted_content)
+                decrypted_content = decrypt_string(encrypted_content.encode(), key)
                 message["content"] = decrypted_content
                 mess.append(message)
             except Exception as e:
                 print(f"Error decrypting message: {e}")
 
         if mess:
-            print(mess)
             return mess
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No messages found")
