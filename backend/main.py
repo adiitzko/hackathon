@@ -272,11 +272,11 @@ def delete_user(user: UserDelete):
     # Build the query filter
     users_collection = app.database["users"]  
     usertodelete= users_collection.find_one({"id":user.id})
-    
+    username=usertodelete["username"]
     users_collection .delete_one({"id": user.id})
-    
-    if locations_collection.find_one({"username":user["username"]}):
-        locations_collection.delete_one({"username":user["username"]})
+
+    if locations_collection.find_one({"username":username}):
+        locations_collection.delete_one({"username":username})
     result=users_collection.find_one({"id":user.id})
     # Ensure at least one field is provided
     if not result:
