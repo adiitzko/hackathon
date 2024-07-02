@@ -633,20 +633,12 @@ def get_meeting():
     
 
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# מגדירים את דף הבית שיגיש את התמונה
 @app.get("/")
 def read_roots():
-    # תמונה נמצאת בתיקית הפרוייקט שלך
-    image_path ="backend/static/logo.jpg" 
-    return FileResponse(image_path, media_type="image/png")
+    # נתיב מוחלט לתמונה
 
-# @app.get("/")
-# def read_roots():
-#     # נתיב מוחלט לתמונה
-
-#     return{""}
+    return{""}
 
 
 if __name__ == "__main__":
