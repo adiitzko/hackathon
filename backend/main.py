@@ -24,6 +24,8 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 import os
 from base64 import b64encode, b64decode
+from cryptography.fernet import Fernet
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -71,27 +73,27 @@ origins = [
     "https://app.the-safe-zone.online"
 ]
 
-def generate_random_string(min_length=32, max_length=32):
-    # הגדרת אורך המחרוזת
-    length = random.randint(min_length, max_length)
+# def generate_random_string(min_length=32, max_length=32):
+#     # הגדרת אורך המחרוזת
+#     length = random.randint(min_length, max_length)
     
-    # יצירת המחרוזת מאותיות ותווים
-    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+#     # יצירת המחרוזת מאותיות ותווים
+#     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
     
-    return random_string
-secret_key = generate_random_string()
+#     return random_string
+# secret_key = generate_random_string()
 
 
-def create_jwt_token(username: str):
-    payload = {
-        "sub": username,
-        "exp": datetime.utcnow() + timedelta(minutes=30)
-        }
-    # Your secret key (guard it with your life!)
-    # Algorithm for token generation
-    algorithm = 'HS256'
-    token = jwt.encode(payload, secret_key, algorithm=algorithm)
-    return token
+# def create_jwt_token(username: str):
+#     payload = {
+#         "sub": username,
+#         "exp": datetime.utcnow() + timedelta(minutes=30)
+#         }
+#     # Your secret key (guard it with your life!)
+#     # Algorithm for token generation
+#     algorithm = 'HS256'
+#     token = jwt.encode(payload, secret_key, algorithm=algorithm)
+#     return token
 
 
 
@@ -125,69 +127,69 @@ def close_mongo_connection():
 # Call MongoDB connection setup function explicitly
 connect_to_mongo()
 
-def generate_key(length=32):
-    characters = string.ascii_letters + string.digits + string.punctuation
-    key = ''.join(random.choice(characters) for _ in range(length))
-    return key
+# def generate_key(length=32):
+#     characters = string.ascii_letters + string.digits + string.punctuation
+#     key = ''.join(random.choice(characters) for _ in range(length))
+#     return key
 
 # Register shutdown hook to close MongoDB connection
 atexit.register(close_mongo_connection)
 router = APIRouter()
 # Include router for location API
 app.include_router(router, tags=["locations", "users","messages"], prefix="/api/v1")
-secret_key = generate_random_string()
-def encrypt_message(key, message):
-    backend = default_backend()
-    iv = b'\x00' * 16  # initialization vector, for simplicity using all zeros
-    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=backend)
-    encryptor = cipher.encryptor()
-    padder = padding.PKCS7(algorithms.AES.block_size).padder()
-    padded_data = padder.update(message.encode()) + padder.finalize()
-    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
-    return b64encode(encrypted_data).decode()
-# פונקציה לפענוח הודעה מ-JWT
+# secret_key = generate_random_string()
+# def encrypt_message(key, message):
+#     backend = default_backend()
+#     iv = b'\x00' * 16  # initialization vector, for simplicity using all zeros
+#     cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=backend)
+#     encryptor = cipher.encryptor()
+#     padder = padding.PKCS7(algorithms.AES.block_size).padder()
+#     padded_data = padder.update(message.encode()) + padder.finalize()
+#     encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+#     return b64encode(encrypted_data).decode()
+# # פונקציה לפענוח הודעה מ-JWT
 
-def decrypt_message(key, encrypted_message):
-    backend = default_backend()
-    iv = b'\x00' * 16  # initialization vector, should be the same as used for encryption
-    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=backend)
-    decryptor = cipher.decryptor()
-    encrypted_data = b64decode(encrypted_message.encode())
-    decrypted_padded_data = decryptor.update(encrypted_data) + decryptor.finalize()
-    unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
-    decrypted_data = unpadder.update(decrypted_padded_data) + unpadder.finalize()
-    return decrypted_data.decode()
+# def decrypt_message(key, encrypted_message):
+#     backend = default_backend()
+#     iv = b'\x00' * 16  # initialization vector, should be the same as used for encryption
+#     cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=backend)
+#     decryptor = cipher.decryptor()
+#     encrypted_data = b64decode(encrypted_message.encode())
+#     decrypted_padded_data = decryptor.update(encrypted_data) + decryptor.finalize()
+#     unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
+#     decrypted_data = unpadder.update(decrypted_padded_data) + unpadder.finalize()
+#     return decrypted_data.decode()
 
-def generate_random_string(min_length=10, max_length=20):
-    # הגדרת אורך המחרוזת
-    length = random.randint(min_length, max_length)
+# def generate_random_string(min_length=10, max_length=20):
+#     # הגדרת אורך המחרוזת
+#     length = random.randint(min_length, max_length)
     
-    # יצירת המחרוזת מאותיות ותווים
-    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+#     # יצירת המחרוזת מאותיות ותווים
+#     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
     
-    return random_string
+#     return random_string
 
-def create_jwt_token(username: str):
-    payload = {
-        "sub": username,
-        "exp": datetime.utcnow() + timedelta(minutes=30)
-        }
-    # Your secret key (guard it with your life!)
-    # Algorithm for token generation
-    algorithm = 'HS256'
-    token = jwt.encode(payload, secret_key, algorithm=algorithm)
-    return token
+# def create_jwt_token(username: str):
+#     payload = {
+#         "sub": username,
+#         "exp": datetime.utcnow() + timedelta(minutes=30)
+#         }
+#     # Your secret key (guard it with your life!)
+#     # Algorithm for token generation
+#     algorithm = 'HS256'
+#     token = jwt.encode(payload, secret_key, algorithm=algorithm)
+#     return token
 
 
-def verify_jwt_token(token: str):
+# def verify_jwt_token(token: str):
    
-    try:
-        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
-        return payload['sub']
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+#     try:
+#         payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+#         return payload['sub']
+#     except jwt.ExpiredSignatureError:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+#     except jwt.InvalidTokenError:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -348,13 +350,28 @@ def add_location(location: Location):
     
     return {"message": "Location added successfully", "location_id": location_id}
     
-    
+def generate_key():
+    return Fernet.generate_key()
+
+# הצפנת מחרוזת תווים
+def encrypt_string(key, string):
+    fernet = Fernet(key)
+    encrypted_string = fernet.encrypt(string.encode())
+    return encrypted_string
+
+# התפצנת מחרוזת תווים
+def decrypt_string(key, encrypted_string):
+    fernet = Fernet(key)
+    decrypted_string = fernet.decrypt(encrypted_string).decode()
+    return decrypted_string
 
 class Message(BaseModel):
     send: str = Field(...)
     content: str = Field(...)
     time: str = Field(default_factory=lambda: datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))
-key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
+#key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
+key=generate_key()
+
 @app.post("/create_message/")
 def create_message(messages: Message):
     try:
@@ -364,6 +381,7 @@ def create_message(messages: Message):
         #encrypted_messaged = encrypt_message(messages.content, key)
         #print(encrypted_messaged)
         #message_dict["message"] = encrypted_messaged
+        print(encrypt_string( messages.content))
         message_dict = messages.dict()
         #print(encrypted_messaged)
        
