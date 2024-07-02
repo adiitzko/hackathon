@@ -363,6 +363,7 @@ def encrypt_string(key, string):
 
 def decrypt_string(encrypted_message, key):
     try:
+        encrypted_message= bytes(encrypted_message)
         fernet = Fernet(key)
         decrypted_bytes = fernet.decrypt(encrypted_message)
         decrypted_message = decrypted_bytes.decode()
