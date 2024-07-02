@@ -294,6 +294,18 @@ def delete_user(user: UserDelete):
             detail="At least username, or id must be provided"
         )
 
+def delete_old_messages():
+    try:
+        # תאריך לפני יום
+        date_before = datetime.now() - timedelta(days=1)
+        
+        # מחיקת כל המסרים בהם התאריך שלהם הוא מלפני יום
+        result = database.messages.delete_many({"timestamp": {"$lt": date_before}})
+        
+        print(f"{result.deleted_count} messages deleted successfully.")
+    
+    except Exception as e:
+        print(f"An error occurred while deleting messages: {str(e)}")
 
 @app.get("/get-locations")
 def get_locations():
@@ -321,27 +333,7 @@ class Location(BaseModel):
     isInDanger: bool = False  # Default value for isInDanger
     
 
-# def delete_messages():
-#     try:
-#         # מחיקת כל המסרים בקולקציה
-#         result = database.messages.delete_many({})
-#         print(f"{result.deleted_count} messages deleted successfully.")
-#     except Exception as e:
-#         print(f"An error occurred while deleting messages: {str(e)}")
 
-# # פונקציה להפעלת המחיקה כל 24 שעות
-# def schedule_delete():
-#     # הגדרת תזמון פעולה - ימחק כל 24 שעות
-#     schedule.every(1).minute.do(delete_messages)
-    
-#     # לולאה להרצת המתזמן
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(1)
-
-# # קריאה לפונקציה שמתזמנת את המחיקה
-# schedule_delete()
-  
 @app.post("/add_location/")
 def add_location(location: Location):
     user = users_collection.find_one({"username": location.username})
@@ -428,6 +420,7 @@ def create_message(messages: Message):
         
 
         app.database["messages"].insert_one(message_dict)
+        delete_old_messages()
         return {"message": "Message created successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
