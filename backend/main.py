@@ -27,6 +27,7 @@ from base64 import b64encode, b64decode
 from cryptography.fernet import Fernet
 import base64
 from starlette.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -629,11 +630,13 @@ def get_meeting():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch meeting: {str(e)}")
     
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# מגדירים את דף הבית שיגיש את התמונה
 @app.get("/")
 def read_roots():
-    #return{}
     # תמונה נמצאת בתיקית הפרוייקט שלך
-    image_path = "/logo.jpg"
+    image_path = "static/logo.jpg"
     return FileResponse(image_path, media_type="image/png")
 
 if __name__ == "__main__":
