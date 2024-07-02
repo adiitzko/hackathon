@@ -367,6 +367,7 @@ def decrypt_string(encrypted_message, key):
         #encrypted_messag=encrypted_message.encode()
         fernet = Fernet(key)
         decrypted_bytes = fernet.decrypt(encrypted_message)
+        print(decrypted_bytes)
         decrypted_message = decrypted_bytes.decode()
         print(decrypted_message)
         return str(decrypted_message)
@@ -495,6 +496,165 @@ async def get_dangerous_users():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/admin-phone", response_model=str)
+async def get_admin_phone():
+    try:
+        # Find the admin user
+        admin_user = users_collection.find_one({"isAdmin": True})
+        
+        if admin_user:
+            return admin_user['phone_number']
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Admin user not found"
+            )
+        
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to fetch admin phone number: {str(e)}")
+
+@app.put("/isdangertrue")
+async def set_isdanger_true(user_name: str):
+    try:
+        users_collection = app.database.users
+        locations_collection = app.database.locations
+        
+        user = users_collection.find_one({"username": user_name})
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        result = locations_collection.update_one({"username": user_name}, {"$set": {"isInDanger": True}})
+        
+        if result.modified_count == 1:
+            
+            
+            # מצא את המיקום העדכני של המשתמש
+            location = locations_collection.find_one({"username": user_name}, sort=[("timestamp", -1)])
+            
+            if location:
+                return {
+                    "message": "User's isInDanger field updated to true",
+                    "location": {
+                        "latitude": location["latitude"],
+                        "longitude": location["longitude"]
+                    }
+                }
+            else:
+                return {
+                    "message": "User's isInDanger field updated to true",
+                    "location": "Location not found"
+                }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+    
+@app.put("/isdangerfalse")
+async def set_isdanger_false(user_name: str):
+    try:
+        users_collection = database.users
+        locations_collection = database.locations
+        
+        # Check if the user exists
+        user = users_collection.find_one({"username": user_name})
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Update the user's location to isInDanger: False
+        result = locations_collection.update_one({"username": user_name}, {"$set": {"isInDanger": False}})
+        
+        if result.modified_count == 1:
+            return {
+                "message": "User's isInDanger field updated to false"
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+
+
+meetings_collection = database["meetings"]
+
+class Meeting(BaseModel):
+    latitude: float
+    longitude: float
+
+# Function to calculate center of locations
+def calculate_center(locations: List[dict]) -> dict:
+    total_lat = 0.0
+    total_lon = 0.0
+    num_locations = len(locations)
+    
+    for loc in locations:
+        total_lat += loc.get('latitude', 0.0)
+        total_lon += loc.get('longitude', 0.0)
+    
+    if num_locations > 0:
+        center_lat = total_lat / num_locations
+        center_lon = total_lon / num_locations
+        return {'latitude': center_lat, 'longitude': center_lon}
+    else:
+        return {}
+
+# Utility function to create or update the meeting center location
+def create_meeting_util():
+    try:
+        all_locations = list(meetings_collection.find({}, {"_id": 0, "latitude": 1, "longitude": 1}))
+        
+        # Calculate the center of all locations
+        center_location = calculate_center(all_locations)
+        
+        # Update the center location in the 'meetings' collection
+        meetings_collection.update_one(
+            {},
+            {"$set": {"latitude": center_location['latitude'], "longitude": center_location['longitude']}},
+            upsert=True
+        )
+        
+        return {"message": "Center location updated successfully"}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update center location: {str(e)}")
+
+
+@app.post("/create-meeting", response_model=Meeting)
+def create_meeting():
+    return create_meeting_util()
+
+# Get meeting endpoint
+@app.get("/get-meeting", response_model=Optional[Meeting])
+def get_meeting():
+    try:
+        # Call the create_meeting_util function to update the center location
+        create_meeting_util()
+        
+        # Retrieve the single location from the 'meetings' collection
+        meeting = meetings_collection.find_one({})
+        
+        if meeting:
+            return {
+                'latitude': meeting['latitude'],
+                'longitude': meeting['longitude']
+            }
+        else:
+            return None  # or raise an HTTPException if needed
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch meeting: {str(e)}")
+    
 @app.get("/")
 def read_roots():
     
