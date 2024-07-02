@@ -469,8 +469,8 @@ async def get_dangerous_users():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/admin-phone/", response_model=str)
-async def get_admin_phone():
+@app.get("/admin-phone/", response_model=str)
+def get_admin_phone():
     try:
         # Find the admin user
         admin_user = users_collection.find_one({"isAdmin": {"$eq": "true"}})
