@@ -399,13 +399,19 @@ def read_messages():
     try:
         messages_collection = app.database.messages  
         messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}))
+        mess=[]
 
         for message in messages:
+            decrypt=decrypt_string(key,message.content)
+            message["content"]=decrypt
             message["_id"] = str(message["_id"]) 
+            mess.append(message)
+            message["content"]=encrypt_string(key,decrypt)
+            
             #print(decrypt_message(message,key))
            
-        if messages:
-            return messages
+        if mess:
+            return mess
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
