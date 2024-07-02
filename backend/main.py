@@ -406,7 +406,8 @@ def read_messages():
         for message in messages:
             try:
                 # פענוח תוכן ההודעה
-                decrypted_content = decrypt_string(key, message["content"])
+                mess=bytes( message["content"])
+                decrypted_content = decrypt_string(key, mess)
                 message["content"] = decrypted_content
             except Exception as e:
                 print(f"Error decrypting message: {e}")
