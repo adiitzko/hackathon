@@ -422,8 +422,8 @@ def read_messages():
             except Exception as e:
                 print(f"Error decrypting message: {e}")
 
-        if messages:
-            return messages
+        if mess:
+            return mess
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No messages found")
     except Exception as e:
