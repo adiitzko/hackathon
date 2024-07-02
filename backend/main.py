@@ -420,7 +420,7 @@ def read_messages():
                
                 encrypted_content = message["content"]
                 print(encrypted_content)
-                decrypted_content = decrypt_string(encrypted_content,key)
+                decrypted_content = decrypt_string(message["content"],key)
                 #print(str(decrypt_string(encrypted_content,key)))
                 message["content"] = decrypted_content
                 mess.append(message)
