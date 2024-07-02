@@ -385,7 +385,7 @@ class Message(BaseModel):
     time: str = Field(default_factory=lambda: datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))
 #key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
 #key=generate_key()
-# key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
+#key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
 key=generate_key()
 @app.post("/create_message/")
 def create_message(messages: Message):
@@ -421,6 +421,7 @@ def read_messages():
                
                 encrypted_content = message["content"]
                 print(encrypted_content)
+                print(decrypt_string('hello',key))
                 decrypted_content = decrypt_string(message["content"],key)
                 #print(str(decrypt_string(encrypted_content,key)))
                 message["content"] = decrypted_content
