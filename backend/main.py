@@ -361,9 +361,10 @@ def encrypt_string(key, string):
     return encrypted_string
 
 # התפצנת מחרוזת תווים
+
 def decrypt_string(key, encrypted_string):
     fernet = Fernet(key)
-    decrypted_string = fernet.decrypt(encrypted_string.decode())
+    decrypted_string = fernet.decrypt(encrypted_string).decode()
     return decrypted_string
 
 class Message(BaseModel):
