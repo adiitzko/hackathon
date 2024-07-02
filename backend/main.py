@@ -402,17 +402,16 @@ def read_messages():
         messages_collection = app.database.messages  
         messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}))
         
-
         for message in messages:
-            #decrypt=decrypt_string(key,message["content"])
-            print(decrypt_string(key,message["content"]))
-            #message["content"]=decrypt
+            try:
+                # פענוח תוכן ההודעה
+                decrypted_content = decrypt_string(key, message["content"])
+                message["content"] = decrypted_content
+            except Exception as e:
+                print(f"Error decrypting message: {e}")
+
             message["_id"] = str(message["_id"]) 
-            #mess.append(message)
-            #print(mess)
             
-            #print(decrypt_message(message,key))
-           
         if messages:
             return messages
         else:
@@ -421,7 +420,7 @@ def read_messages():
                 detail="No messages found"
             )
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
     # try:
     #     key = os.urandom(32) 
     #     messages_collection = app.database.messages  
