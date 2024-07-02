@@ -401,7 +401,7 @@ def create_message(messages: Message):
 def read_messages():
     try:
         mess=[]
-        messages_collection = database.messages
+        messages_collection = app.database.messages
         messages = list(messages_collection.find({}, {"send": 1, "content": 1, "time": 1}))
 
         for message in messages:
