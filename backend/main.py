@@ -631,11 +631,10 @@ def get_meeting():
     
 @app.get("/")
 def read_roots():
-    #return{""}
+    #return{}
     # תמונה נמצאת בתיקית הפרוייקט שלך
-    image_path = r"C:\Users\1\לימודים\שנה ב\hackton\hackathon\backend\logo.jpg"
+    image_path = "logo.jpg"
     return FileResponse(image_path, media_type="image/png")
-        
 
 if __name__ == "__main__":
     import uvicorn
