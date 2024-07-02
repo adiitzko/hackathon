@@ -289,10 +289,11 @@ def delete_user(user: UserDelete):
             detail="At least username, or id must be provided"
         )
 
+
 @app.get("/get-locations")
 def get_locations():
     locationss = []
-    cursor =locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1})  
+    cursor =locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1,"isInDanger":1})  
     for location in cursor:
            if users_collection.find_one({"username":location["username"]}):
               locationss.append(location)
@@ -403,7 +404,7 @@ def read_messages():
 
         for message in messages:
             #decrypt=decrypt_string(key,message["content"])
-            print(decrypt_string(key,message["content"]))
+            #print(decrypt_string(key,message["content"]))
             #message["content"]=decrypt
             message["_id"] = str(message["_id"]) 
             #mess.append(message)
