@@ -630,14 +630,12 @@ def get_meeting():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch meeting: {str(e)}")
     
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
 @app.get("/")
 def read_roots():
-    # שימוש בנתיב יחסי לתמונה
-    current_dir = os.path.dirname(__file__)
-    image_path = os.path.join(current_dir, "static", "logo.jpg")
+    # נתיב מוחלט לתמונה
+    image_path = r"C:\Users\1\לימודים\שנה ב\hackton\hackathon\backend\logo.jpg"
     return FileResponse(image_path)
+
 
 if __name__ == "__main__":
     import uvicorn
