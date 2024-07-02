@@ -362,7 +362,7 @@ def encrypt_string(key, string):
 # התפצנת מחרוזת תווים
 def decrypt_string(key, encrypted_string):
     fernet = Fernet(key)
-    decrypted_string = fernet.decrypt(encrypted_string).decode()
+    decrypted_string = fernet.decrypt(encrypted_string.decode())
     return decrypted_string
 
 class Message(BaseModel):
@@ -399,14 +399,14 @@ def read_messages():
     try:
         messages_collection = app.database.messages  
         messages = list(messages_collection.find({}, { "send": 1, "content": 1, "time": 1}))
-        mess=[]
+        
 
         for message in messages:
-            decrypt=decrypt_string(key,message["content"])
-            message["content"]=decrypt
+            #decrypt=decrypt_string(key,message["content"])
+            #message["content"]=decrypt
             message["_id"] = str(message["_id"]) 
-            mess.append(message)
-            message["content"]=encrypt_string(key,decrypt)
+            #mess.append(message)
+            #print(mess)
             
             #print(decrypt_message(message,key))
            
