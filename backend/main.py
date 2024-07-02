@@ -414,8 +414,8 @@ def read_messages():
                         encrypted_content = encrypted_content.encode()
 
                     # פענוח התוכן
-                    decrypted_content = decrypt_string(key, encrypted_content)
-                    message["content"] =str( decrypted_content)
+                    #decrypted_content = decrypt_string(key, encrypted_content)
+                   # message["content"] =str( decrypted_content)
             except Exception as e:
                 print(f"Error decrypting message: {e}")
 
