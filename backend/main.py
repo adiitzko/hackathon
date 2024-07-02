@@ -469,14 +469,14 @@ async def get_dangerous_users():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/admin-phone", response_model=str)
+@router.get("/admin-phone/", response_model=str)
 async def get_admin_phone():
     try:
         # Find the admin user
         admin_user = users_collection.find_one({"isAdmin": "true"})
         
         if admin_user:
-            return admin_user['phone_number']
+            return admin_user["phone_number"]
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
