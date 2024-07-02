@@ -26,7 +26,7 @@ import os
 from base64 import b64encode, b64decode
 from cryptography.fernet import Fernet
 import base64
-
+from starlette.responses import FileResponse
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -632,33 +632,13 @@ def get_meeting():
 @app.get("/")
 def read_roots():
     
-    #token=generate_token("adam")
-    #return {generate_token(username='adam')}
-    return {"message":"hi"}
-    #return {token}
-
+    # תמונה נמצאת בתיקית הפרוייקט שלך
+    image_path = "C:\Users\1\לימודים\שנה ב\hackton\hackathon\backend\logo.jpg"
+    return FileResponse(image_path, media_type="image/png")
         
 
 if __name__ == "__main__":
     import uvicorn
-    #user = app.database["users"].find_one({"username":"adam"})
-    try:
-       key=generate_key()
-         # יצירת מפתח חדש
-       original_string = "Hello, World!"
-       encrypted_string = encrypt_string(key, original_string)
-    
-       if encrypted_string is not None:
-        decrypted_string = decrypt_string( encrypted_string,key)
-    
-        print(f"מפתח: {key}")
-        print(f"מחרוזת מקורית: {original_string}")
-        print(f"מחרוזת מוצפנת: {encrypted_string}")
-        print(f"מחרוזת מפוצנת: {decrypted_string}")
-       else:
-        print("Encryption failed.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    
+    #user = app.database["users"].find_one({"username":"adam"}    
     
     uvicorn.run(app, host="0.0.0.0", port=8000)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
