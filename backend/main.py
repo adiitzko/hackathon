@@ -381,7 +381,7 @@ def create_message(messages: Message):
         #encrypted_messaged = encrypt_message(messages.content, key)
         #print(encrypted_messaged)
         #message_dict["message"] = encrypted_messaged
-        print(encrypt_string( messages.content))
+        print(encrypt_string(key, messages.content))
         message_dict = messages.dict()
         #print(encrypted_messaged)
        
@@ -485,6 +485,22 @@ def read_roots():
 if __name__ == "__main__":
     import uvicorn
     #user = app.database["users"].find_one({"username":"adam"})
-    user=get_users()
-    print(user)
+    try:
+       key = generate_key()  # יצירת מפתח חדש
+       original_string = "Hello, World!"
+       encrypted_string = encrypt_string(key, original_string)
+    
+       if encrypted_string is not None:
+        decrypted_string = decrypt_string(key, encrypted_string)
+    
+        print(f"מפתח: {key}")
+        print(f"מחרוזת מקורית: {original_string}")
+        print(f"מחרוזת מוצפנת: {encrypted_string}")
+        print(f"מחרוזת מפוצנת: {decrypted_string}")
+       else:
+        print("Encryption failed.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    
+    
     uvicorn.run(app, host="0.0.0.0", port=8000)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
