@@ -364,9 +364,9 @@ def encrypt_string(key, string):
 def decrypt_string(encrypted_message, key):
     try:
         
-        encrypted_messag=encrypted_message.encode()
+        #encrypted_messag=encrypted_message.encode()
         fernet = Fernet(key)
-        decrypted_bytes = fernet.decrypt(encrypted_messag)
+        decrypted_bytes = fernet.decrypt(encrypted_message)
         decrypted_message = decrypted_bytes.decode()
         return decrypted_message
     except Exception as e:
