@@ -274,6 +274,9 @@ def delete_user(user: UserDelete):
     usertodelete= users_collection.find_one({"id":user.id})
     
     users_collection .delete_one({"id": user.id})
+    
+    if locations_collection.find_one({"username":user["username"]}):
+        locations_collection.delete_one({"username":user["username"]})
     result=users_collection.find_one({"id":user.id})
     # Ensure at least one field is provided
     if not result:
