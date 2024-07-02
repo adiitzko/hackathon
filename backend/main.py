@@ -382,7 +382,7 @@ def create_message(messages: Message):
         #print(encrypted_messaged)
         #message_dict["message"] = encrypted_messaged
         encrypted_messaged=encrypt_string(key, messages.content)
-        messages.content = encrypted_messaged
+        messages.content = str(encrypted_messaged)
         message_dict = messages.dict()
        
         #print(encrypted_messaged)
