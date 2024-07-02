@@ -403,6 +403,7 @@ def read_messages():
 
         for message in messages:
             #decrypt=decrypt_string(key,message["content"])
+            print(decrypt_string(key,message["content"]))
             #message["content"]=decrypt
             message["_id"] = str(message["_id"]) 
             #mess.append(message)
