@@ -473,7 +473,7 @@ async def get_dangerous_users():
 async def get_admin_phone():
     try:
         # Find the admin user
-        admin_user = users_collection.find_one({"isAdmin": "true"})
+        admin_user = users_collection.find_one({"isAdmin": {"$eq": "true"}})
         print(admin_user)
         
         if admin_user:
