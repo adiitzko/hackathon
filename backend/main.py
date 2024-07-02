@@ -362,9 +362,7 @@ def encrypt_string(key, string):
 
 # התפצנת מחרוזת תווים
 
-def decrypt_string(key, encrypted_string):
-    #key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
-    
+def decrypt_string(key: str, encrypted_string: bytes) -> str:
     fernet = Fernet(key)
     decrypted_string = fernet.decrypt(encrypted_string).decode()
     return decrypted_string
@@ -398,39 +396,24 @@ def create_message(messages: Message):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-@app.get("/read_messages/")
+@app.get("/read_messages/", response_model=List[Message])
 def read_messages():
     try:
-        messages_collection = app.database.messages  
+        messages_collection = app.database["messages"]
         messages = list(messages_collection.find({}, {"send": 1, "content": 1, "time": 1}))
-        mess=[]
 
         for message in messages:
             try:
-                # ודא שמספר המסרים לא יעודכן עם מחרוזת תווים
-                
-                    encrypted_content = message["content"]
-                    
-                    # אם המחרוזת מוצפנת, המיר אותה ל- bytes
-                    if isinstance(encrypted_content, str):
-                        encrypted_content = encrypted_content.encode()
-
-                    # פענוח התוכן
-                    decrypted_content = decrypt_string(key, encrypted_content)
-                    #message["content"] =str( decrypted_content)
-                    mess.append(message)
+                encrypted_content = message["content"]
+                decrypted_content = decrypt_string(key, encrypted_content.encode())
+                message["content"] = decrypted_content
             except Exception as e:
                 print(f"Error decrypting message: {e}")
 
-            message["_id"] = str(message["_id"]) 
-            
-        if mess:
-            return mess
+        if messages:
+            return messages
         else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No messages found"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No messages found")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
     # try:
