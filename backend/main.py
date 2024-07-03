@@ -314,7 +314,7 @@ def get_locations():
     for location in cursor:
            if users_collection.find_one({"username":location["username"]}):
               locationss.append(location)
-              print(location)
+              #print(location)
     if locationss!=None:
        # print(locationss)
         return locationss
@@ -324,6 +324,22 @@ def get_locations():
             detail="User not found"
         )
 
+@app.get("/get-locations-isInDanger/")
+def get_locations_IsIndanger():
+    locationss = []
+    cursor =locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1,"isInDanger":1})  
+    for location in cursor:
+          if users_collection.find_one({"username": location["username"], "isInDanger": True}):
+              locationss.append(location)
+              #rint(location)
+    if locationss!=None:
+        print(locationss)
+        return locationss
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
 
 class Location(BaseModel):
     username: str
@@ -369,32 +385,7 @@ def add_location(location: Location):
     
     return {"message": "Location added successfully", "location_id": location_id}
     
-def generate_key():
-    return Fernet.generate_key()
 
-# הצפנת מחרוזת תווים
-def encrypt_string(key, string):
-    fernet = Fernet(key)
-    encrypted_string = fernet.encrypt(string.encode())
-    return encrypted_string
-
-def decrypt_string(encrypted_message, key):
-    try:
-        
-        #encrypted_messag=encrypted_message.encode()
-        fernet = Fernet(key)
-        decrypted_bytes = fernet.decrypt(encrypted_message)
-        print(decrypted_bytes)
-        decrypted_message = decrypted_bytes.decode()
-        print(decrypted_message)
-        return str(decrypted_message)
-    except Exception as e:
-        return str(e)
-# def decrypt_string(key, encrypted_string):
-#     fernet = Fernet(key)
-#     decrypted_bytes = fernet.decrypt(encrypted_string)
-#     decrypted_string = decrypted_bytes.decode()
-#     return decrypted_string
     
 class Message(BaseModel):
     send: str = Field(...)
@@ -403,7 +394,7 @@ class Message(BaseModel):
 #key = "qJ5kC3V9wE1mN8aZ2rU7xL4oT6pB0yW7fS2gH9dI4uM"
 #key=generate_key()
 #key='NGn8yk9PMEqrfkP_jBpFnxAk8XOFUSJuklZ2X0cBZ60='
-key=generate_key()
+
 @app.post("/create_message/")
 def create_message(messages: Message):
     try:
