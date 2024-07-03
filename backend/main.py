@@ -257,7 +257,6 @@ def get_users():
     for user in cursor:
            users.append(user)
     if users!=None:
-        print(users)
         return users
     else:
         raise HTTPException(
@@ -575,29 +574,45 @@ class Meeting(BaseModel):
     longitude: float
 
 # Function to calculate center of locations
-def calculate_center(locations: list) -> list:
+def calculate_center(locations: list[dict]) -> dict:
+    print(locations)
+    if not isinstance(locations, list):
+        print("The provided input is not a list.")
+        return {}
+    
+    print("Locations:", locations)
+    
     total_lat = 0.0
     total_lon = 0.0
     num_locations = len(locations)
     
-    for loc in locations:
+    print("Number of locations:", num_locations)
+    
+    for i, loc in enumerate(locations):
+        print(f"Processing location {i}: {loc}")
         total_lat += loc.get('latitude', 0.0)
         total_lon += loc.get('longitude', 0.0)
+    
+    print("Total latitude:", total_lat)
+    print("Total longitude:", total_lon)
     
     if num_locations > 0:
         center_lat = total_lat / num_locations
         center_lon = total_lon / num_locations
+        print("Center latitude:", center_lat)
+        print("Center longitude:", center_lon)
         return {'latitude': center_lat, 'longitude': center_lon}
     else:
+        print("No locations provided")
         return {}
+
 
 # Utility function to create or update the meeting center location
 def create_meeting_util():
     try:
-        all_locations = locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1})
-        
-        # Calculate the center of all locations
-        center_location = calculate_center(all_locations)
+        all_locations = locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1,"isInDanger":1})  
+       
+        center_location = calculate_center(list(all_locations))
         
         # Update the center location in the 'meetings' collection
         meetings_collection.update_one(
