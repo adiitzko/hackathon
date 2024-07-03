@@ -329,9 +329,9 @@ def get_locations_IsIndanger():
     locationss = []
     cursor =locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1,"isInDanger":1})  
     for location in cursor:
-          if users_collection.find_one({"username": location["username"], "isInDanger": True}):
+          if users_collection.find_one({"username": location["username"],}):
               locationss.append(location)
-              #rint(location)
+              
     if locationss!=None:
         print(locationss)
         return locationss
