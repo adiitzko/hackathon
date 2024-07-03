@@ -580,30 +580,27 @@ def calculate_center(locations: list[dict]) -> dict:
         print("The provided input is not a list.")
         return {}
     
-    print("Locations:", locations)
+   
     
     total_lat = 0.0
     total_lon = 0.0
     num_locations = len(locations)
     
-    print("Number of locations:", num_locations)
+   
     
     for i, loc in enumerate(locations):
-        print(f"Processing location {i}: {loc}")
+        
         total_lat += loc.get('latitude', 0.0)
         total_lon += loc.get('longitude', 0.0)
     
-    print("Total latitude:", total_lat)
-    print("Total longitude:", total_lon)
-    
+   
     if num_locations > 0:
         center_lat = total_lat / num_locations
         center_lon = total_lon / num_locations
-        print("Center latitude:", center_lat)
-        print("Center longitude:", center_lon)
+       
         return {'latitude': center_lat, 'longitude': center_lon}
     else:
-        print("No locations provided")
+        
         return {}
 
 
@@ -640,6 +637,7 @@ def get_meeting():
         
         # Retrieve the single location from the 'meetings' collection
         meeting = meetings_collection.find_one({})
+        print(meeting)
         
         if meeting:
             return {
