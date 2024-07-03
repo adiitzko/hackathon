@@ -329,11 +329,10 @@ def get_locations_IsIndanger():
     locationss = []
     cursor =locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1,"isInDanger":1})  
     for location in cursor:
-          if users_collection.find_one({"username": location["username"],}):
+          if users_collection.find_one({"username": location["username"], "isInDanger": True}):
               locationss.append(location)
-              
+              #rint(location)
     if locationss!=None:
-        print(locationss)
         return locationss
     else:
         raise HTTPException(
@@ -483,7 +482,7 @@ def get_admin_phone():
     try:
         # Find the admin user
         admin_user = users_collection.find_one({"isAdmin": {"$eq": "true"}})
-        print(admin_user)
+    
         
         if admin_user:
             return admin_user["phone_number"]
@@ -576,7 +575,7 @@ class Meeting(BaseModel):
     longitude: float
 
 # Function to calculate center of locations
-def calculate_center(locations: List[dict]) -> dict:
+def calculate_center(locations: list) -> list:
     total_lat = 0.0
     total_lon = 0.0
     num_locations = len(locations)
@@ -595,7 +594,7 @@ def calculate_center(locations: List[dict]) -> dict:
 # Utility function to create or update the meeting center location
 def create_meeting_util():
     try:
-        all_locations = list(meetings_collection.find({}, {"_id": 0, "latitude": 1, "longitude": 1}))
+        all_locations = locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1})
         
         # Calculate the center of all locations
         center_location = calculate_center(all_locations)
@@ -651,5 +650,5 @@ def read_roots():
 if __name__ == "__main__":
     import uvicorn
     #user = app.database["users"].find_one({"username":"adam"}    
-    
+    meet=create_meeting_util()
     uvicorn.run(app, host="0.0.0.0", port=8000)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
