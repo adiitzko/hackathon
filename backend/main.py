@@ -450,7 +450,7 @@ def add_location(location: Location):
         "latitude": location.latitude,
         "longitude": location.longitude,
         "timestamp": location.timestamp.isoformat(),
-        "isInDanger":False
+        "isInDanger":location.isInDanger
     }
     
     # הוספת המיקום החדש למאגר הנתונים
