@@ -421,7 +421,7 @@ class Location(BaseModel):
     latitude: float
     longitude: float
     timestamp: datetime = datetime.now()
-    isInDanger: bool = False  # Default value for isInDanger
+    isInDanger: bool  # Default value for isInDanger
 
 
 @app.post("/add_location/")
