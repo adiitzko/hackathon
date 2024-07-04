@@ -34,6 +34,8 @@ import schedule
 import time
 import multiprocessing
 
+from .logger import logger
+
 
 workers = multiprocessing.cpu_count() * 2 + 1
 
@@ -320,6 +322,7 @@ def delete_old_messages():
 
 @app.get("/get-locations")
 def get_locations():
+    logger.info('suppppp')
     locationss = []
     cursor =locations_collection.find({}, {"_id": 0,"username": 1, "latitude": 1, "longitude": 1,"isInDanger":1})  
     for location in cursor:
