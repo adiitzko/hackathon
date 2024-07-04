@@ -44,6 +44,11 @@ stream_handler.setFormatter(log_formatter)
 logger.addHandler(stream_handler)
 logger.info('API is starting up')
 
+logging.getLogger("uvicorn.access")
+logger.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler(sys.stdout)
+
+
 
 workers = multiprocessing.cpu_count() * 2 + 1
 
