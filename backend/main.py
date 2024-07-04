@@ -1,6 +1,6 @@
 import os
 import sys
-from fastapi import FastAPI,Body,Request,Response, HTTPException, status, HTTPException,status,Form
+from fastapi import FastAPI,Body,Request,Response, HTTPException, status, HTTPException,status,Form,Security
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -34,6 +34,11 @@ import io
 import schedule
 import time
 import multiprocessing
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from starlette.status import HTTP_403_FORBIDDEN
+from fastapi import FastAPI,Body,Request,Response, HTTPException, status, HTTPException,status,Form,Depends,Security
+
+security = HTTPBearer()
 
 import logging
 logger = logging.getLogger(__name__)
@@ -104,6 +109,47 @@ origins = [
     "https://localhost",
     "https://app.the-safe-zone.online"
 ]
+
+
+def generate_random_string(min_length=32, max_length=32):
+    # הגדרת אורך המחרוזת
+    length = random.randint(min_length, max_length)
+    
+    # יצירת המחרוזת מאותיות ותווים
+    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    
+    return random_string
+secret_key = generate_random_string()
+
+
+def create_jwt_token(username: str):
+    payload = {
+        "sub": username,
+        "exp": datetime.utcnow() + timedelta(minutes=30)
+        }
+#     # Your secret key (guard it with your life!)
+#     # Algorithm for token generation
+    algorithm = 'HS256'
+    token = jwt.encode(payload, secret_key, algorithm=algorithm)
+    return token
+
+def verify_jwt_token(token: str):
+    try:
+        payload = jwt.decode(token, secret_key, algorithms=[algorithms])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=HTTP_403_FORBIDDEN, detail="Token has expired"
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=HTTP_403_FORBIDDEN, detail="Invalid token"
+        )
+    
+def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
+    token = credentials.credentials
+    return verify_jwt_token(token)
+
 
 # def generate_random_string(min_length=32, max_length=32):
 #     # הגדרת אורך המחרוזת
@@ -277,22 +323,20 @@ def create_user(user_create: UserCreate):
         )
     
 @app.get("/get-users", response_model=List[Dict[str, str]])
-def get_users():
-    
-    users = []
-    cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  
-    for user in cursor:
-           users.append(user)
-    if users!=None:
-        return users
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-
-
-
+def get_users(current_user: dict = Depends(get_current_user)):
+    if current_user:
+        users = []
+        cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  
+        for user in cursor:
+            users.append(user)
+        if users!=None:
+            return users
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
 def hash_password(password: str) -> str:
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     return hashed_password
