@@ -32,6 +32,18 @@ from starlette.responses import StreamingResponse
 import io
 import schedule
 import time
+import multiprocessing
+
+
+workers = multiprocessing.cpu_count() * 2 + 1
+
+# The address to bind to.
+bind = "0.0.0.0:8000"
+
+# Using Uvicorn worker class for ASGI applications.
+worker_class = "uvicorn.workers.UvicornWorker"
+
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class UserCreate(BaseModel):
@@ -61,7 +73,7 @@ MONGO_URI=MongoClient("mongodb+srv://adiitzko:adiitz2004@cluster0.is6jut3.mongod
 
 # Load environment variables from .env file
 load_dotenv(".env")
-#frontend_url = "https://app.the-safe-zone.online"
+
 frontend_url = "https://app.the-safe-zone.online"
 database = MONGO_URI.locationDB
 app = FastAPI()
@@ -575,7 +587,7 @@ class Meeting(BaseModel):
 
 # Function to calculate center of locations
 def calculate_center(locations: list[dict]) -> dict:
-    print(locations)
+   
     if not isinstance(locations, list):
         print("The provided input is not a list.")
         return {}
@@ -660,8 +672,11 @@ def read_roots():
     return{""}
 
 
+@app.get("/items/{item_id}")
+async def read_item(item_id: int, q: str = None):
+    return {"item_id": item_id, "q": q}
+
 if __name__ == "__main__":
     import uvicorn
     #user = app.database["users"].find_one({"username":"adam"}    
-    meet=create_meeting_util()
     uvicorn.run(app, host="0.0.0.0", port=8000)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
