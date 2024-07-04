@@ -168,7 +168,7 @@ connect_to_mongo()
 atexit.register(close_mongo_connection)
 router = APIRouter()
 # Include router for location API
-app.include_router(router, tags=["locations", "users","messages","meetings"], prefix="/api/v1")
+app.include_router(router, tags=["locations", "users","messages","meetings","actions"], prefix="/api/v1")
 # secret_key = generate_random_string()
 # def encrypt_message(key, message):
 #     backend = default_backend()
@@ -677,9 +677,55 @@ def get_meeting():
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch meeting: {str(e)}")
-    
 
+actions_collection = database["actions"]
 
+class Action(BaseModel):
+    act: bool
+
+@app.post("/act_true", response_model=Action)
+async def set_act_true():
+        try:
+            result = actions_collection.update_one({}, {"$set": {"act": True}}, upsert=True)
+            
+            if result.modified_count == 1 or result.upserted_id is not None:
+                return {"message": "act set to True"}
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Action not found"
+                )
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+
+@app.post("/act_false", response_model=Action)
+async def set_act_false():
+        try:
+            result = actions_collection.update_one({}, {"$set": {"act": False}}, upsert=True)
+            
+            if result.modified_count == 1 or result.upserted_id is not None:
+                return {"message": "act set to False"}
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Action not found"
+                )
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+
+@app.get("/act_get", response_model=Action)
+async def get_act():
+        try:
+            action = actions_collection.find_one({}, {"_id": 0, "act": 1})
+            if action:
+                return {"act": action["act"]}
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Action not found"
+                )
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
 
 @app.get("/")
 def read_roots():
