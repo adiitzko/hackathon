@@ -1,4 +1,5 @@
 import os
+import sys
 from fastapi import FastAPI,Body,Request,Response, HTTPException, status, HTTPException,status,Form
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
@@ -34,7 +35,14 @@ import schedule
 import time
 import multiprocessing
 
-from .logger import logger
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+stream_handler = logging.StreamHandler(sys.stdout)
+log_formatter = logging.Formatter("%(asctime)s [%(processName)s: %(process)d] [%(threadName)s: %(thread)d] [%(levelname)s] %(name)s: %(message)s")
+stream_handler.setFormatter(log_formatter)
+logger.addHandler(stream_handler)
+logger.info('API is starting up')
 
 
 workers = multiprocessing.cpu_count() * 2 + 1
