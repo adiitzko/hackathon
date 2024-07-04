@@ -440,7 +440,7 @@ class Location(BaseModel):
     latitude: float
     longitude: float
     timestamp: datetime= datetime.now()
-    isInDanger: bool = False  # Default value for isInDanger
+    isInDanger: bool   # Default value for isInDanger
     
 
 
@@ -808,5 +808,7 @@ async def read_item(item_id: int, q: str = None):
 
 # if __name__ == "main":
 #     import uvicorn
-#     #user = app.database["users"].find_one({"username":"adam"}    
+#     token = create_jwt_token("testuser")
+#     print(token)
+#     #user = app.database["users"].find_one({"username":"adam"} 
 #     uvicorn.run(app, host="0.0.0.0", port=8000)
