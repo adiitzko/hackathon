@@ -143,8 +143,9 @@ def verify_jwt_token(token: str):
             status_code=HTTP_403_FORBIDDEN, detail="Token has expired"
         )
     except jwt.InvalidTokenError:
+        print('no')
         raise HTTPException(
-            print('no')
+           
             status_code=HTTP_403_FORBIDDEN, detail="Invalid token"
         )
     
