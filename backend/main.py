@@ -203,34 +203,57 @@ app.include_router(
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
+# @app.post("/test-login")
+# def login(login_params: LoginParams, form_data: OAuth2PasswordRequestForm = Depends()):
+#     user = app.database["users"].find_one({"username": login_params.username})
+#     is_admin = user.get("isAdmin")
+#     password = user.get("password")
+#     passw = hash_password(login_params.password)
+#     username = form_data.username
+
+#     if user is not None and password == passw:
+#         # and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
+#         # token = create_jwt_token(login_params.username)
+
+#         # token=create_jwt_token(user)
+#         access_token = create_access_token(data={"username": username})
+#         if is_admin:
+#             return {
+#                 "status": "success_is_admin",
+#                 "user_id": str(user["_id"]),
+#                 "access_token": access_token,
+#                 "token_type": "bearer",
+#             }
+#         else:
+#             return {
+#                 "status": "success_is_not_admin",
+#                 "user_id": str(user["_id"]),
+#                 "access_token": access_token,
+#                 "token_type": "bearer",
+#             }
+#     else:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Invalid username or password",
+#         )
+
+
 @app.post("/test-login")
-def login(login_params: LoginParams, form_data: OAuth2PasswordRequestForm = Depends()):
+def login(login_params: LoginParams):
     user = app.database["users"].find_one({"username": login_params.username})
     is_admin = user.get("isAdmin")
     password = user.get("password")
     passw = hash_password(login_params.password)
-    username = form_data.username
 
     if user is not None and password == passw:
         # and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
         # token = create_jwt_token(login_params.username)
 
         # token=create_jwt_token(user)
-        access_token = create_access_token(data={"username": username})
         if is_admin:
-            return {
-                "status": "success_is_admin",
-                "user_id": str(user["_id"]),
-                "access_token": access_token,
-                "token_type": "bearer",
-            }
+            return {"status": "success_is_admin", "user_id": str(user["_id"])}
         else:
-            return {
-                "status": "success_is_not_admin",
-                "user_id": str(user["_id"]),
-                "access_token": access_token,
-                "token_type": "bearer",
-            }
+            return {"status": "success_is_not_admin", "user_id": str(user["_id"])}
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
