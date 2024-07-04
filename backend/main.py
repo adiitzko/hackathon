@@ -35,6 +35,7 @@ import time
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.status import HTTP_403_FORBIDDEN
 import multiprocessing
+import sys
 
 import logging
 logger = logging.getLogger(__name__)
