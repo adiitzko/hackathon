@@ -136,6 +136,7 @@ def create_jwt_token(username: str):
 def verify_jwt_token(token: str):
     try:
         payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+        print('yes')
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(
@@ -143,6 +144,7 @@ def verify_jwt_token(token: str):
         )
     except jwt.InvalidTokenError:
         raise HTTPException(
+            print('no')
             status_code=HTTP_403_FORBIDDEN, detail="Invalid token"
         )
     
