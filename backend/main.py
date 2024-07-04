@@ -681,9 +681,9 @@ def get_meeting():
 actions_collection = database["actions"]
 
 class Action(BaseModel):
-    act: bool
+    act: bool=False
 
-@app.post("/act_true", response_model=Action)
+@app.post("/act_true/", response_model=Action)
 async def set_act_true():
         try:
             result = actions_collection.update_one({}, {"$set": {"act": True}}, upsert=True)
@@ -698,7 +698,7 @@ async def set_act_true():
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
 
-@app.post("/act_false", response_model=Action)
+@app.post("/act_false/", response_model=Action)
 async def set_act_false():
         try:
             result = actions_collection.update_one({}, {"$set": {"act": False}}, upsert=True)
