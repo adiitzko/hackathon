@@ -724,7 +724,7 @@ def read_roots():
     return{""}
 
 
-if _name_ == "_main_":
+if '_name_' == "_main_":
     import uvicorn
     #user = app.database["users"].find_one({"username":"adam"}    
     meet=create_meeting_util()
