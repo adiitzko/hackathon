@@ -275,7 +275,7 @@ app.include_router(router, tags=["locations", "users","messages","meetings","act
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 @app.post("/test-login")
-def login(login_params: LoginParams):
+def login(login_params: LoginParams, response: Response):
     user = app.database["users"].find_one({"username":login_params.username})
     is_admin = user.get("isAdmin")
     password=user.get("password")
@@ -283,8 +283,9 @@ def login(login_params: LoginParams):
     
     if user is not None and password==passw:
     #and bcrypt.checkpw(login_params.password.encode('utf-8'), user["password"].encode('utf-8')) :
-        #token = create_jwt_token(login_params.username)
-       
+        token = create_jwt_token(login_params.username)
+        response.set_cookie(key="token", value=token)
+
         #token=create_jwt_token(user)
         if is_admin:
           return {"status": "success_is_admin","user_id": str(user["_id"])}
