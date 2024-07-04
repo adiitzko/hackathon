@@ -36,6 +36,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.status import HTTP_403_FORBIDDEN
 import multiprocessing
 import sys
+from fastapi import HTTPAuthorizationCredentials, Security
+from fastapi.security import HTTPBearer
 
 import logging
 logger = logging.getLogger(__name__)
