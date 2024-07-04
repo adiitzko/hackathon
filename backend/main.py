@@ -325,22 +325,41 @@ def create_user(user_create: UserCreate):
             detail="Failed to create user"
         )
     
-@app.get("/get-users", response_model=List[Dict[str, str]])
-def get_users():
+# @app.get("/get-users", response_model=List[Dict[str, str]])
+# def get_users():
     
-    users = []
-    cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  
-    for user in cursor:
-           users.append(user)
-    if users!=None:
-        return users
-    else:
+#     users = []
+#     cursor = users_collection.find({}, {"_id": 0, "id":1,"username": 1, "password": 1, "address": 1})  
+#     for user in cursor:
+#            users.append(user)
+#     if users!=None:
+#         return users
+#     else:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="User not found"
+#         )
+
+@app.get("/get-users", response_model=List[Dict[str, str]])
+def get_users(current_user: dict = Security(get_current_user)):
+    try:
+        users = []
+        cursor = users_collection.find({}, {"_id": 0, "id": 1, "username": 1, "password": 1, "address": 1})
+        for user in cursor:
+            users.append(user)
+        if users:
+            return users
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Users not found"
+            )
+    except Exception as e:
+        print(f"An error occurred: {e}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving users"
         )
-
-
         
 def hash_password(password: str) -> str:
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
