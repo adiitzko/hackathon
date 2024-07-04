@@ -135,7 +135,7 @@ def create_jwt_token(username: str):
 
 def verify_jwt_token(token: str):
     try:
-        payload = jwt.decode(token, secret_key, algorithms=[algorithms])
+        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(
