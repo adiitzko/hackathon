@@ -388,6 +388,11 @@ def get_locations():
         if users_collection.find_one({"username": location["username"]}):
             locationss.append(location)
             # print(location)
+
+    # if users_collection.find_one({"username": "ayalet"}):
+    #    locations_collection.update_one(
+    #         {"username": "ayalet"}, {"$set": {"latitude": }})
+
     if locationss != None:
         # print(locationss)
         return locationss
@@ -801,21 +806,21 @@ async def set_act_false():
         )
 
 
-@app.get("/act_get", response_model=Action)
-async def get_act():
-    try:
-        action = actions_collection.find_one({}, {"_id": 0, "act": 1})
-        if action:
-            return {"act": action["act"]}
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Action not found"
-            )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred: {e}",
-        )
+# @app.get("/act_get", response_model=Action)
+# async def get_act():
+#     try:
+#         action = actions_collection.find_one({}, {"_id": 0, "act": 1})
+#         if action:
+#             return {"act": action["act"]}
+#         else:
+#             raise HTTPException(
+#                 status_code=status.HTTP_404_NOT_FOUND, detail="Action not found"
+#             )
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=f"An error occurred: {e}",
+#         )
 
 
 @app.get("/")
